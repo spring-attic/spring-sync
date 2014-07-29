@@ -1,0 +1,51 @@
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+ul {
+    list-style: none;
+}
+input {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 1em;
+    border: none;
+    border: 1px solid transparent;
+    border-bottom: 1px dotted #aaa;
+    margin: .5em;
+    padding: .25em .5em;
+    outline: none;
+}
+input:hover {
+    border-bottom: 1px solid #aaa;
+}
+input:focus {
+    border-bottom: 1px solid orangered;
+}
+label {
+    display: block;
+    color: #666
+}
+fieldset {
+    border: 1px solid #eee;
+    margin-top: 1em;
+}
+legend {
+    color: #666;
+}
+button {
+    border: none;
+    border-radius: .5em;
+    background: #1166ff;
+    color: white;
+    opacity: .9;
+    padding: .5em 1em;
+    text-shadow: -1px -1px 1px blue;
+    box-shadow: 1px 1px 1px #999;
+}
+button:hover {
+    opacity: 1;
+}
+button:active {
+    box-shadow: none;
+    -webkit-transform: translateY(1px);
+    transform: translateY(1px);
+}

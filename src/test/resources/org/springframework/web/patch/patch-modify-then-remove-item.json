@@ -1,0 +1,5 @@
+[
+  {"op":"test", "path":"/1/complete", "value":false}, 
+  {"op":"replace", "path":"/1/complete", "value":true},
+  {"op":"remove", "path":"/1"}
+]

@@ -1,0 +1,33 @@
+<!doctype html>
+<html data-debug>
+<head>
+    <title>Fabulous Spring REST Todos</title>
+    <!--<link rel="stylesheet" href="base.css"/>-->
+    <script src="node_modules/rave/rave.js"></script>
+</head>
+<body>
+
+<section>
+    <h2>Your Todos</h2>
+
+    <form class="create-todo" onsubmit="controller.add">
+        <input name="description" placeholder="Add a todo" autofocus/>
+        <input name="complete" type="checkbox" disabled style="display: none"/>
+        <button type="submit">Add</button>
+        <button type="button" onclick="controller.completeAll">Complete all</button>
+        <button type="button" onclick="controller.removeCompleted">Remove completed</button>
+    </form>
+
+    <ul data-model="controller.todos">
+        <li data-list>
+            <input type="hidden" name="id"/>
+            <input type="checkbox" name="complete"/>
+            <input name="description"/>
+            <span onclick="controller.remove">&times;</span>
+        </li>
+    </ul>
+
+</section>
+
+</body>
+</html>
