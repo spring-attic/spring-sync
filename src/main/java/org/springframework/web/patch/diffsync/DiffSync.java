@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.web.patch.jsonpatch.JsonDiff;
 import org.springframework.web.patch.jsonpatch.JsonPatch;
 
@@ -42,19 +43,19 @@ public class DiffSync<T> {
 	
 	private Equivalency sameness = new IdPropertyEquivalency();
 
-	private PersistenceStrategy<List<T>> persistence;
-	
+	private CrudRepository<T, ?> repository;
+
 	/**
 	 * Constructs the Differential Synchronization routine instance.
 	 * @param patch a JSON Patch to perform
 	 * @param shadowStore the shadow store
-	 * @param persistence persistence strategy
+	 * @param repository repository to save and delete as necessary in the course of applying the patch
 	 * @param entityType the entity type
 	 */
-	public DiffSync(JsonPatch patch, ShadowStore shadowStore, PersistenceStrategy<List<T>> persistence, Class<T> entityType) {
+	public DiffSync(JsonPatch patch, ShadowStore shadowStore, CrudRepository<T, ?> repository, Class<T> entityType) {
+		this.repository = repository;
 		this.patch = patch;
 		this.shadowStore = shadowStore;
-		this.persistence = persistence;
 		this.entityType = entityType;
 	}
 	
@@ -62,12 +63,30 @@ public class DiffSync<T> {
 		this.sameness = sameness;
 	}
 	
-	public JsonNode apply() {
-		List<T> original = find();
-		
+	public JsonNode apply(T original) {
+		T source = deepClone(original);
 		String shadowStoreKey = getShadowStoreKey(original);
+		T shadow = (T) shadowStore.getShadow(shadowStoreKey);
+		if (shadow == null) {
+			shadow = deepClone(original);
+		}
 		
+		if (patch.size() > 0) {
+			shadow = (T) patch.apply(shadow);
+			source = (T) patch.apply(source);
+			
+			repository.save(source);
+		}
+		
+		JsonNode returnPatch = new JsonDiff().diff(shadow, source);
+		shadowStore.putShadow(shadowStoreKey, shadow);
+		
+		return returnPatch;
+	}
+	
+	public JsonNode apply(List<T> original) {
 		List<T> source = deepCloneList(original);
+		String shadowStoreKey = getShadowStoreKey(original);
 		List<T> shadow = (List<T>) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
 			shadow = deepCloneList(original);
@@ -126,22 +145,22 @@ public class DiffSync<T> {
 		return sameness.isEquivalent(o1, o2);
 	}
 	
-	private List<T> find() {
-		return persistence.find();
-	}
-	
 	private void save(List<T> list) {
 		if (list.size() > 0) {
-			persistence.save(list);
+			repository.save(list);
 		}
 	}
 	
 	private void delete(List<T> list) {
 		if (list.size() > 0) {
-			persistence.delete(list);
+			repository.delete(list);
 		}
 	}
 
+	private T deepClone(T original) {
+		return (T) SerializationUtils.clone((Serializable) original);
+	}
+	
 	private List<T> deepCloneList(List<T> original) {
 		List<T> copy = new ArrayList<T>(original.size());
 		for(T t : original) {

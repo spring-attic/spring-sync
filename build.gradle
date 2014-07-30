@@ -32,6 +32,7 @@ dependencies {
 	compile("com.fasterxml.jackson.core:jackson-databind:2.4.1")
 	compile("commons-lang:commons-lang:2.6")
 	compile("com.googlecode.java-diff-utils:diffutils:1.2.1")
+	compile("org.springframework.data:spring-data-commons:1.8.2.RELEASE");
 	testCompile("org.hibernate:hibernate-entitymanager:4.3.5.Final")
 	testCompile("com.h2database:h2:1.4.180")
 	testCompile("org.springframework.data:spring-data-jpa:1.6.2.RELEASE");

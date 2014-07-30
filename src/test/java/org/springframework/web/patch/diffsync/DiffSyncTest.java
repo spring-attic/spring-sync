@@ -233,9 +233,10 @@ public class DiffSyncTest {
 	//
 	
 	private JsonNode applyPatch(String patchResourceName) throws IOException, JsonProcessingException {
+		Iterable<Todo> allTodos = todoRepository().findAll();
 		JsonPatch jsonPatch = readJsonPatchFromResource(patchResourceName);
-		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), persistenceStrategy(), Todo.class);
-		return sync.apply();
+		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), todoRepository(), Todo.class);
+		return sync.apply((List<Todo>) allTodos);
 	}
 	
 	private JsonPatch readJsonPatchFromResource(String resource) throws IOException, JsonProcessingException { 
@@ -248,11 +249,6 @@ public class DiffSyncTest {
 			@Override
 			public List<Todo> save(List<Todo> t) {
 				return (List<Todo>) todoRepository().save(t);
-			}
-			
-			@Override
-			public List<Todo> find() {
-				return (List<Todo>) todoRepository().findAll();
 			}
 			
 			@Override
