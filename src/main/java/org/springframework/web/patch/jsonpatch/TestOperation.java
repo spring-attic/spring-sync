@@ -59,10 +59,10 @@ public class TestOperation extends JsonPatchOperation {
 			Class<?> targetType = targetValue != null ? targetValue.getClass() : Object.class;
 			Object comparisonValue = value != null ? mapper.readValue(value.toString(), targetType) : null;
 			if (!ObjectUtils.nullSafeEquals(comparisonValue, targetValue)) {
-				throw new JsonPatchException("Test against path '" + path + "' failed");
+				throw new JsonPatchException("Test against path '" + path + "' failed.");
 			}
 		} catch (IOException e) {
-			throw new JsonPatchException("Test against path '" + path + "' failed.");
+			throw new JsonPatchException("Test against path '" + path + "' failed.", e);
 		}
 	}
 	

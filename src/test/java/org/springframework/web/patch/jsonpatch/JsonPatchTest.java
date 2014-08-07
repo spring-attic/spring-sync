@@ -71,7 +71,7 @@ public class JsonPatchTest {
 			patch.apply(todos);
 			fail();
 		} catch (JsonPatchException e) {
-			assertEquals("Test against path '/5/description' failed", e.getMessage());
+			assertEquals("Test against path '/5/description' failed.", e.getMessage());
 		}
 		
 		// nothing should have changed
@@ -99,7 +99,7 @@ public class JsonPatchTest {
 			patch.apply(todos);
 			fail();
 		} catch (JsonPatchException e) {
-			assertEquals("Test against path '/5/description' failed", e.getMessage());
+			assertEquals("Test against path '/5/description' failed.", e.getMessage());
 		}
 		
 		// nothing should have changed
