@@ -41,7 +41,7 @@ public class DiffSync<T> {
 	
 	private Class<T> entityType;
 	
-	private Equivalency sameness = new IdPropertyEquivalency();
+	private Equivalency equivalency = new IdPropertyEquivalency();
 
 	private CrudRepository<T, ?> repository;
 
@@ -59,54 +59,94 @@ public class DiffSync<T> {
 		this.entityType = entityType;
 	}
 	
-	public void setSameness(Equivalency sameness) {
-		this.sameness = sameness;
+	/**
+	 * Sets the equivalency check strategy.
+	 * Used to compare two objects to determine if they represent the same entity, even if the values of their properties differ.
+	 * Defaults to {@link IdPropertyEquivalency} which compares the id property of each object.
+	 * @param equivalency the equivalency strategy.
+	 */
+	public void setEquivalency(Equivalency equivalency) {
+		this.equivalency = equivalency;
 	}
 	
-	public JsonNode apply(T original) {
-		T source = deepClone(original);
-		String shadowStoreKey = getShadowStoreKey(original);
+	/**
+	 * Applies the patch to a single, non-list object.
+	 * @param target the object to apply a patch to.
+	 * @return a {@link JsonNode} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
+	 */
+	public JsonNode apply(T target) {
+		// Clone the target into a working copy so that we can diff it later.
+		// Must be a deep clone or else items in any list properties will be the exact same instances
+		// and could be changed in both the target and the working copy.
+		T workCopy = deepClone(target);
+		
+		// Look up the shadow from the shadow store; clone the target if the shadow doesn't exist.
+		String shadowStoreKey = getShadowStoreKey(target);
 		T shadow = (T) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
-			shadow = deepClone(original);
+			shadow = deepClone(target);
 		}
 		
+		// Apply patch to both shadow and working copy.
 		if (patch.size() > 0) {
 			shadow = (T) patch.apply(shadow);
-			source = (T) patch.apply(source);
+			workCopy = (T) patch.apply(workCopy);
 			
-			repository.save(source);
+			// Save the working copy.
+			repository.save(workCopy);
 		}
 		
-		JsonNode returnPatch = new JsonDiff().diff(shadow, source);
+		// Calculate the return patch by diff'ing the shadow and working copy.
+		JsonNode returnPatch = new JsonDiff().diff(shadow, workCopy);
+		
+		// Store the shadow.
 		shadowStore.putShadow(shadowStoreKey, shadow);
 		
+		// Return the return patch.
 		return returnPatch;
 	}
 	
-	public JsonNode apply(List<T> original) {
-		List<T> source = deepCloneList(original);
-		String shadowStoreKey = getShadowStoreKey(original);
+	/**
+	 * Applies the patch to a list.
+	 * @param target the list to apply a patch to.
+	 * @return a {@link JsonNode} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
+	 */
+	public JsonNode apply(List<T> target) {
+		// Clone the target into a working copy so that we can diff it later.
+		// Must be a deep clone or else the individual items in the list will still be the exact same instances
+		// and could be changed in both the target and the working copy.
+		List<T> workCopy = deepCloneList(target);
+		
+		// Look up the shadow from the shadow store; clone the target if the shadow doesn't exist.
+		String shadowStoreKey = getShadowStoreKey(target);
 		List<T> shadow = (List<T>) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
-			shadow = deepCloneList(original);
+			shadow = deepCloneList(target);
 		}
 
 		if (patch.size() > 0) {
+			// Apply patch to both shadow and working copy.
 			shadow = (List<T>) patch.apply(shadow);
-			source = (List<T>) patch.apply(source);
+			workCopy = (List<T>) patch.apply(workCopy);
 
-			List<T> itemsToSave = new ArrayList<T>(source);
-			itemsToSave.removeAll(original);
+			// Determine which items changed.
+			// Make a shallow copy of the working copy, remove items that are in the target.
+			// What's left are the items that changed and need to be saved.
+			List<T> itemsToSave = new ArrayList<T>(workCopy);
+			itemsToSave.removeAll(target);
 
+			// Save the changed items
 			if (itemsToSave.size() > 0) {
 				save(itemsToSave);
 			}
 	
-			// REMOVE ITEMS
-			List<T> itemsToRemove = new ArrayList<T>(original);
-			for (T candidate : original) {
-				for (T item : source) {
+			// Determine which items should be deleted.
+			// Make a shallow copy of the target, remove items that are equivalent to items in the working copy.
+			// Equivalent is not the same as equals. It means "this is the same resource, even if it has changed".
+			// It usually means "are the id properties equals".
+			List<T> itemsToRemove = new ArrayList<T>(target);
+			for (T candidate : target) {
+				for (T item : workCopy) {
 					if (isSame(candidate, item)) {
 						itemsToRemove.remove(candidate);
 						break;
@@ -114,19 +154,22 @@ public class DiffSync<T> {
 				}
 			}
 			
+			// Delete the items that were deleted as part of the patch
 			if (itemsToRemove.size() > 0) {
 				delete(itemsToRemove);
 			}
 		}
 		
-		JsonNode returnPatch = new JsonDiff().diff(shadow, source);
+		// Calculate the return patch by diff'ing the shadow and working copy
+		JsonNode returnPatch = new JsonDiff().diff(shadow, workCopy);
 		
-		// apply return patch to shadow
+		// Apply the return patch to the shadow to sync it up with the working copy.
 		shadow = (List<T>) JsonPatch.fromJsonNode(returnPatch).apply(shadow);
 		
-		// update session with new shadow
+		// Store the shadow
 		shadowStore.putShadow(shadowStoreKey, shadow);
 		
+		// Return the patch
 		return returnPatch;
 	}
 	
@@ -142,7 +185,7 @@ public class DiffSync<T> {
 	}
 	
 	private boolean isSame(T o1, T o2) {
-		return sameness.isEquivalent(o1, o2);
+		return equivalency.isEquivalent(o1, o2);
 	}
 	
 	private void save(List<T> list) {
