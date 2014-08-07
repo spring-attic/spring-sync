@@ -74,6 +74,7 @@ public class DiffSync<T> {
 	 * @param target the object to apply a patch to.
 	 * @return a {@link JsonNode} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
 	 */
+	@SuppressWarnings("unchecked")
 	public JsonNode apply(T target) {
 		// Clone the target into a working copy so that we can diff it later.
 		// Must be a deep clone or else items in any list properties will be the exact same instances
@@ -111,6 +112,7 @@ public class DiffSync<T> {
 	 * @param target the list to apply a patch to.
 	 * @return a {@link JsonNode} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
 	 */
+	@SuppressWarnings("unchecked")
 	public JsonNode apply(List<T> target) {
 		// Clone the target into a working copy so that we can diff it later.
 		// Must be a deep clone or else the individual items in the list will still be the exact same instances
@@ -137,7 +139,7 @@ public class DiffSync<T> {
 
 			// Save the changed items
 			if (itemsToSave.size() > 0) {
-				save(itemsToSave);
+				repository.save(itemsToSave);
 			}
 	
 			// Determine which items should be deleted.
@@ -147,7 +149,7 @@ public class DiffSync<T> {
 			List<T> itemsToRemove = new ArrayList<T>(target);
 			for (T candidate : target) {
 				for (T item : workCopy) {
-					if (isSame(candidate, item)) {
+					if (equivalency.isEquivalent(candidate, item)) {
 						itemsToRemove.remove(candidate);
 						break;
 					}
@@ -156,7 +158,7 @@ public class DiffSync<T> {
 			
 			// Delete the items that were deleted as part of the patch
 			if (itemsToRemove.size() > 0) {
-				delete(itemsToRemove);
+				repository.delete(itemsToRemove);
 			}
 		}
 		
@@ -184,26 +186,12 @@ public class DiffSync<T> {
 		}
 	}
 	
-	private boolean isSame(T o1, T o2) {
-		return equivalency.isEquivalent(o1, o2);
-	}
-	
-	private void save(List<T> list) {
-		if (list.size() > 0) {
-			repository.save(list);
-		}
-	}
-	
-	private void delete(List<T> list) {
-		if (list.size() > 0) {
-			repository.delete(list);
-		}
-	}
-
+	@SuppressWarnings("unchecked")
 	private T deepClone(T original) {
 		return (T) SerializationUtils.clone((Serializable) original);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private List<T> deepCloneList(List<T> original) {
 		List<T> copy = new ArrayList<T>(original.size());
 		for(T t : original) {
