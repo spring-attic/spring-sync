@@ -43,13 +43,14 @@ public class DiffSync<T> {
 	
 	private Equivalency equivalency = new IdPropertyEquivalency();
 
+	// TODO: Try to extract this out. Do the save/delete independent of and after the diff sync routine.
 	private CrudRepository<T, ?> repository;
 
 	/**
 	 * Constructs the Differential Synchronization routine instance.
 	 * @param patch a JSON Patch to perform
 	 * @param shadowStore the shadow store
-	 * @param repository repository to save and delete as necessary in the course of applying the patch
+	 * @param repository Spring Data {@link CrudRepository} to save and delete as necessary in the course of applying the patch
 	 * @param entityType the entity type
 	 */
 	public DiffSync(JsonPatch patch, ShadowStore shadowStore, CrudRepository<T, ?> repository, Class<T> entityType) {
