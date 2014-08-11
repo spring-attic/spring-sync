@@ -20,12 +20,12 @@ install {
     repositories.mavenInstaller {
         pom.version = '0.5.0.BUILD-SNAPSHOT'
         pom.groupId = 'org.springframework'
-        pom.artifactId = 'spring-patch'
+        pom.artifactId = 'spring-sync'
     }
 }
 
 jar {
-	baseName = "spring-patch"
+	baseName = "spring-sync"
 	version  =  "0.5.0.BUILD-SNAPSHOT"
 }
 
