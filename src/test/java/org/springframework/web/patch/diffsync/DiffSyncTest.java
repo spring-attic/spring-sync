@@ -235,27 +235,15 @@ public class DiffSyncTest {
 	private JsonNode applyPatch(String patchResourceName) throws IOException, JsonProcessingException {
 		Iterable<Todo> allTodos = todoRepository().findAll();
 		JsonPatch jsonPatch = readJsonPatchFromResource(patchResourceName);
-		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), todoRepository(), Todo.class);
+		
+		JpaPersistenceCallback<Todo> callback = new JpaPersistenceCallback<Todo>(todoRepository());
+		
+		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), callback, Todo.class);
 		return sync.apply((List<Todo>) allTodos);
 	}
 	
 	private JsonPatch readJsonPatchFromResource(String resource) throws IOException, JsonProcessingException { 
 		return JsonPatch.fromJsonNode(OBJECT_MAPPER.readTree(resource(resource)));
-	}
-
-	private PersistenceStrategy<List<Todo>> persistenceStrategy() {
-		return new PersistenceStrategy<List<Todo>>() {
-			
-			@Override
-			public List<Todo> save(List<Todo> t) {
-				return (List<Todo>) todoRepository().save(t);
-			}
-			
-			@Override
-			public void delete(List<Todo> t) {
-				todoRepository().delete(t);
-			}
-		};
 	}
 
 	private String resource(String name) throws IOException {
@@ -271,5 +259,5 @@ public class DiffSyncTest {
 	private TodoRepository todoRepository() {
 		return repository;
 	}
-
+	
 }

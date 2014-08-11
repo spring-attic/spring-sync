@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.web.patch.jsonpatch.JsonDiff;
 import org.springframework.web.patch.jsonpatch.JsonPatch;
 
@@ -43,18 +42,17 @@ public class DiffSync<T> {
 	
 	private Equivalency equivalency = new IdPropertyEquivalency();
 
-	// TODO: Try to extract this out. Do the save/delete independent of and after the diff sync routine.
-	private CrudRepository<T, ?> repository;
+	private PersistenceCallback<T> persistenceCallback;
 
 	/**
 	 * Constructs the Differential Synchronization routine instance.
 	 * @param patch a JSON Patch to perform
 	 * @param shadowStore the shadow store
-	 * @param repository Spring Data {@link CrudRepository} to save and delete as necessary in the course of applying the patch
+	 * @param persistenceCallback an implementation of {@link PersistenceCallback} used to save and delete items while performing the patch
 	 * @param entityType the entity type
 	 */
-	public DiffSync(JsonPatch patch, ShadowStore shadowStore, CrudRepository<T, ?> repository, Class<T> entityType) {
-		this.repository = repository;
+	public DiffSync(JsonPatch patch, ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback, Class<T> entityType) {
+		this.persistenceCallback = persistenceCallback;
 		this.patch = patch;
 		this.shadowStore = shadowStore;
 		this.entityType = entityType;
@@ -95,7 +93,7 @@ public class DiffSync<T> {
 			workCopy = (T) patch.apply(workCopy);
 			
 			// Save the working copy.
-			repository.save(workCopy);
+			persistenceCallback.persistChange(workCopy);
 		}
 		
 		// Calculate the return patch by diff'ing the shadow and working copy.
@@ -138,29 +136,21 @@ public class DiffSync<T> {
 			List<T> itemsToSave = new ArrayList<T>(workCopy);
 			itemsToSave.removeAll(target);
 
-			// Save the changed items
-			if (itemsToSave.size() > 0) {
-				repository.save(itemsToSave);
-			}
-	
 			// Determine which items should be deleted.
 			// Make a shallow copy of the target, remove items that are equivalent to items in the working copy.
 			// Equivalent is not the same as equals. It means "this is the same resource, even if it has changed".
 			// It usually means "are the id properties equals".
-			List<T> itemsToRemove = new ArrayList<T>(target);
+			List<T> itemsToDelete = new ArrayList<T>(target);
 			for (T candidate : target) {
 				for (T item : workCopy) {
 					if (equivalency.isEquivalent(candidate, item)) {
-						itemsToRemove.remove(candidate);
+						itemsToDelete.remove(candidate);
 						break;
 					}
 				}
 			}
 			
-			// Delete the items that were deleted as part of the patch
-			if (itemsToRemove.size() > 0) {
-				repository.delete(itemsToRemove);
-			}
+			persistenceCallback.persistChanges(itemsToSave, itemsToDelete);
 		}
 		
 		// Calculate the return patch by diff'ing the shadow and working copy

@@ -75,7 +75,10 @@ public class DiffSyncSingleResourceTests {
 	private JsonNode applyPatch(Long id, String patchResourceName) throws IOException, JsonProcessingException {
 		Todo todo = todoRepository().findOne(id);
 		JsonPatch jsonPatch = readJsonPatchFromResource(patchResourceName);
-		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), todoRepository(), Todo.class);
+
+		JpaPersistenceCallback<Todo> callback = new JpaPersistenceCallback<Todo>(todoRepository());
+
+		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), callback, Todo.class);
 		return sync.apply(todo);
 	}
 	
@@ -93,21 +96,6 @@ public class DiffSyncSingleResourceTests {
 		return builder.toString();
 	}
 
-
-	private PersistenceStrategy<Todo> persistenceStrategy() {
-		return new PersistenceStrategy<Todo>() {
-			@Override
-			public Todo save(Todo t) {
-				return todoRepository().save(t);
-			}
-			
-			@Override
-			public void delete(Todo t) {
-				todoRepository().delete(t);
-			}
-		};
-	}
-	
 	private TodoRepository todoRepository() {
 		return repository;
 	}
