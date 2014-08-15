@@ -4,12 +4,19 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-class JpaPersistenceCallback<T> implements PersistenceCallback<T> {
+public class JpaPersistenceCallback<T> implements PersistenceCallback<T> {
 	
 	private final CrudRepository<T, Long> repo;
+	private Class<T> entityType;
 
-	public JpaPersistenceCallback(CrudRepository<T, Long> repo) {
+	public JpaPersistenceCallback(CrudRepository<T, Long> repo, Class<T> entityType) {
 		this.repo = repo;
+		this.entityType = entityType;
+	}
+	
+	@Override
+	public List<T> findAll() {
+		return (List<T>) repo.findAll();
 	}
 	
 	@Override
@@ -22,4 +29,10 @@ class JpaPersistenceCallback<T> implements PersistenceCallback<T> {
 		repo.save(itemsToSave);
 		repo.delete(itemsToDelete);
 	}
+
+	@Override
+	public Class<T> getEntityType() {
+		return entityType;
+	}
+	
 }

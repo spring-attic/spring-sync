@@ -37,9 +37,7 @@ public class DiffSync<T> {
 	private JsonPatch patch;
 	
 	private ShadowStore shadowStore;
-	
-	private Class<T> entityType;
-	
+
 	private Equivalency equivalency = new IdPropertyEquivalency();
 
 	private PersistenceCallback<T> persistenceCallback;
@@ -51,11 +49,10 @@ public class DiffSync<T> {
 	 * @param persistenceCallback an implementation of {@link PersistenceCallback} used to save and delete items while performing the patch
 	 * @param entityType the entity type
 	 */
-	public DiffSync(JsonPatch patch, ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback, Class<T> entityType) {
+	public DiffSync(JsonPatch patch, ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback) {
 		this.persistenceCallback = persistenceCallback;
 		this.patch = patch;
 		this.shadowStore = shadowStore;
-		this.entityType = entityType;
 	}
 	
 	/**
@@ -75,6 +72,10 @@ public class DiffSync<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public JsonNode apply(T target) {
+		if (target instanceof List) {
+			return apply((List) target);
+		}
+		
 		// Clone the target into a working copy so that we can diff it later.
 		// Must be a deep clone or else items in any list properties will be the exact same instances
 		// and could be changed in both the target and the working copy.
@@ -170,10 +171,11 @@ public class DiffSync<T> {
 	// private helper methods
 	
 	private String getShadowStoreKey(Object o) {
+		String resourceName = persistenceCallback.getEntityType().getSimpleName();
 		if (o instanceof List) {
-			return "shadow/list/" + entityType.getSimpleName();
+			return "shadow/list/" + resourceName;
 		} else {
-			return "shadow/" + entityType.getSimpleName();
+			return "shadow/" + resourceName;
 		}
 	}
 	

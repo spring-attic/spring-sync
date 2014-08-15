@@ -12,6 +12,12 @@ import java.util.List;
 public interface PersistenceCallback<T> {
 
 	/**
+	 * Find all instances of the entity
+	 * @return all instance of the entity
+	 */
+	List<T> findAll();
+
+	/**
 	 * Save a single item.
 	 * @param itemToSave the item to save.
 	 */
@@ -23,5 +29,7 @@ public interface PersistenceCallback<T> {
 	 * @param itemsToDelete a list of items to be deleted.
 	 */
 	void persistChanges(List<T> itemsToSave, List<T> itemsToDelete);
+		
+	Class<T> getEntityType();
 	
 }

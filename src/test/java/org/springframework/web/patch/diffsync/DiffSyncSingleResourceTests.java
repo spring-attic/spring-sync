@@ -76,9 +76,9 @@ public class DiffSyncSingleResourceTests {
 		Todo todo = todoRepository().findOne(id);
 		JsonPatch jsonPatch = readJsonPatchFromResource(patchResourceName);
 
-		JpaPersistenceCallback<Todo> callback = new JpaPersistenceCallback<Todo>(todoRepository());
+		JpaPersistenceCallback<Todo> callback = new JpaPersistenceCallback<Todo>(todoRepository(), Todo.class);
 
-		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), callback, Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), callback);
 		return sync.apply(todo);
 	}
 	
