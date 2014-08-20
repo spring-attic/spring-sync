@@ -34,7 +34,7 @@ public class DiffSyncController {
 	}
 
 	@RequestMapping(
-			value="/api/{resource}",
+			value="/sync/{resource}",  // TODO : Shouldn't have to hard-code "/sync" prefix. Should be configurable or non-existent.
 			method=RequestMethod.PATCH, 
 			consumes={"application/json", "application/json-patch+json"}, 
 			produces={"application/json", "application/json-patch+json"})

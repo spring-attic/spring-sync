@@ -28,7 +28,6 @@ import org.springframework.web.patch.TodoRepository;
 import org.springframework.web.patch.diffsync.EmbeddedDataSourceConfig;
 import org.springframework.web.patch.diffsync.JpaPersistenceCallback;
 import org.springframework.web.patch.diffsync.MapBasedShadowStore;
-import org.springframework.web.patch.diffsync.PersistenceCallback;
 import org.springframework.web.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.web.patch.diffsync.ShadowStore;
 import org.springframework.web.patch.jsonpatch.JsonPatchMethodArgumentResolver;
@@ -38,7 +37,7 @@ import org.springframework.web.patch.jsonpatch.JsonPatchMethodArgumentResolver;
 @Transactional
 public class DiffSyncControllerTest {
 
-	private static final String RESOURCE_PATH = "/api/todos";
+	private static final String RESOURCE_PATH = "/sync/todos";
 
 	@Autowired
 	private TodoRepository repository;
@@ -318,9 +317,8 @@ public class DiffSyncControllerTest {
 	private MockMvc mockMvc(TodoRepository todoRepository) {
 		ShadowStore shadowStore = new MapBasedShadowStore();
 		
-		List<PersistenceCallback<?>> callbacks = new ArrayList<PersistenceCallback<?>>();
-		callbacks.add(new JpaPersistenceCallback<Todo>(todoRepository, Todo.class));
-		PersistenceCallbackRegistry callbackRegistry = new PersistenceCallbackRegistry(callbacks);
+		PersistenceCallbackRegistry callbackRegistry = new PersistenceCallbackRegistry();
+		callbackRegistry.addPersistenceCallback(new JpaPersistenceCallback<Todo>(todoRepository, Todo.class));
 		
 		DiffSyncController controller = new DiffSyncController(callbackRegistry, shadowStore);
 		List<HttpMessageConverter<?>> messageConverters = new ArrayList();
