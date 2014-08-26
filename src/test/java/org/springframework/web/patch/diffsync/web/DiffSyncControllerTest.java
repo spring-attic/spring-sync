@@ -37,7 +37,7 @@ import org.springframework.web.patch.jsonpatch.JsonPatchMethodArgumentResolver;
 @Transactional
 public class DiffSyncControllerTest {
 
-	private static final String RESOURCE_PATH = "/sync/todos";
+	private static final String RESOURCE_PATH = "/todos";
 
 	@Autowired
 	private TodoRepository repository;
