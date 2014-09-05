@@ -321,6 +321,7 @@ public class DiffSyncControllerTest {
 		callbackRegistry.addPersistenceCallback(new JpaPersistenceCallback<Todo>(todoRepository, Todo.class));
 		
 		DiffSyncController controller = new DiffSyncController(callbackRegistry, shadowStore);
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		List<HttpMessageConverter<?>> messageConverters = new ArrayList();
 		messageConverters.add(new MappingJackson2HttpMessageConverter());
 		MockMvc mvc = standaloneSetup(controller)

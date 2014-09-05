@@ -48,6 +48,7 @@ public class DiffSyncController {
 		this.shadowStore = shadowStore;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(
 			value="${spring.diffsync.path:}/{resource}",  // TODO : Shouldn't have to hard-code "/sync" prefix. Should be configurable or non-existent.
 			method=RequestMethod.PATCH, 

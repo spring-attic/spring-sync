@@ -46,6 +46,7 @@ public class JsonPatchTest {
 		JsonPatch patch = readJsonPatch("/org/springframework/web/patch/patch-many-successful-operations.json");
 		assertEquals(6, patch.size());
 
+		@SuppressWarnings("unchecked")
 		List<Todo> patchedTodos = (List<Todo>) patch.apply(todos);
 		
 		assertEquals(6, todos.size());
@@ -116,7 +117,7 @@ public class JsonPatchTest {
 		ClassPathResource resource = new ClassPathResource(jsonPatchFile);
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node = mapper.readValue(resource.getInputStream(), JsonNode.class);
-		JsonPatch patch = JsonPatch.fromJsonNode((JsonNode) node);
+		JsonPatch patch = JsonPatch.fromJsonNode(node);
 		return patch;
 	}
 	

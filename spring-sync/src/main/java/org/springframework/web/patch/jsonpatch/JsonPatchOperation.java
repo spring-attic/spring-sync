@@ -82,6 +82,7 @@ public abstract class JsonPatchOperation {
 			spelExpression.setValue(target, value);
 		} else {
 			try {
+				@SuppressWarnings("unchecked")
 				List<Object> list = (List<Object>) parentExpression.getValue(target);
 				
 				if (value instanceof String) {

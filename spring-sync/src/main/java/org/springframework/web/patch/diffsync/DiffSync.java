@@ -47,7 +47,6 @@ public class DiffSync<T> {
 	 * @param patch a JSON Patch to perform
 	 * @param shadowStore the shadow store
 	 * @param persistenceCallback an implementation of {@link PersistenceCallback} used to save and delete items while performing the patch
-	 * @param entityType the entity type
 	 */
 	public DiffSync(JsonPatch patch, ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback) {
 		this.persistenceCallback = persistenceCallback;
@@ -70,7 +69,7 @@ public class DiffSync<T> {
 	 * @param target the object to apply a patch to.
 	 * @return a {@link JsonNode} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public JsonNode apply(T target) {
 		if (target instanceof List) {
 			return apply((List) target);
