@@ -136,7 +136,6 @@ public class JsonDiff {
 				opNode.set("value", MAPPER.readTree(value));
 			} catch (Exception e) {
 				// TODO : DEAL WITH THIS EXCEPTION BETTER
-				System.out.println(e);
 			}
 		}
 		if (from != null) {
