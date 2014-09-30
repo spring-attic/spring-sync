@@ -32,6 +32,7 @@ import org.springframework.web.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.web.patch.diffsync.ShadowStore;
 import org.springframework.web.patch.jsonpatch.JsonPatch;
 import org.springframework.web.patch.jsonpatch.JsonPatchException;
+import org.springframework.web.patch.jsonpatch.JsonPatchPatch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -50,16 +51,16 @@ public class DiffSyncController {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(
-			value="${spring.diffsync.path:}/{resource}",  // TODO : Shouldn't have to hard-code "/sync" prefix. Should be configurable or non-existent.
+			value="${spring.diffsync.path:}/{resource}",
 			method=RequestMethod.PATCH, 
 			consumes={"application/json", "application/json-patch+json"}, 
 			produces={"application/json", "application/json-patch+json"})
-	public ResponseEntity<JsonNode> patch(@PathVariable("resource") String resource, JsonPatch jsonPatch) throws JsonPatchException {
+	public ResponseEntity<JsonNode> patch(@PathVariable("resource") String resource, JsonPatch patch) throws JsonPatchException {
 		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);
 		
 		List<?> items = (List<?>) persistenceCallback.findAll();
 		
-		DiffSync<Object> sync = new DiffSync(jsonPatch, shadowStore, persistenceCallback);
+		DiffSync<Object> sync = new DiffSync(new JsonPatchPatch(patch), shadowStore, persistenceCallback);
 		JsonNode returnPatch = sync.apply(items);
 
 		// return returnPatch
