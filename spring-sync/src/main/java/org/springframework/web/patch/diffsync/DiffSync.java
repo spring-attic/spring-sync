@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class DiffSync<T> {
 
-	private Patch patch;
+	private JsonPatch patch;
 	
 	private ShadowStore shadowStore;
 
@@ -48,7 +48,7 @@ public class DiffSync<T> {
 	 * @param shadowStore the shadow store
 	 * @param persistenceCallback an implementation of {@link PersistenceCallback} used to save and delete items while performing the patch
 	 */
-	public DiffSync(Patch patch, ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback) {
+	public DiffSync(JsonPatch patch, ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback) {
 		this.persistenceCallback = persistenceCallback;
 		this.patch = patch;
 		this.shadowStore = shadowStore;
@@ -88,7 +88,7 @@ public class DiffSync<T> {
 		}
 		
 		// Apply patch to both shadow and working copy.
-		if (!patch.isEmpty()) {
+		if (patch.size() > 0) {
 			shadow = (T) patch.apply(shadow);
 			workCopy = (T) patch.apply(workCopy);
 			
@@ -125,7 +125,7 @@ public class DiffSync<T> {
 			shadow = deepCloneList(target);
 		}
 
-		if (!patch.isEmpty()) {
+		if (patch.size() > 0) {
 			// Apply patch to both shadow and working copy.
 			shadow = (List<T>) patch.apply(shadow);
 			workCopy = (List<T>) patch.apply(workCopy);

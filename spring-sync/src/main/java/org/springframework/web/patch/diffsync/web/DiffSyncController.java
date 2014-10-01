@@ -32,7 +32,6 @@ import org.springframework.web.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.web.patch.diffsync.ShadowStore;
 import org.springframework.web.patch.jsonpatch.JsonPatch;
 import org.springframework.web.patch.jsonpatch.JsonPatchException;
-import org.springframework.web.patch.jsonpatch.JsonPatchPatch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -60,7 +59,7 @@ public class DiffSyncController {
 		
 		List<?> items = (List<?>) persistenceCallback.findAll();
 		
-		DiffSync<Object> sync = new DiffSync(new JsonPatchPatch(patch), shadowStore, persistenceCallback);
+		DiffSync<Object> sync = new DiffSync(patch, shadowStore, persistenceCallback);
 		JsonNode returnPatch = sync.apply(items);
 
 		// return returnPatch

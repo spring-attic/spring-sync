@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.patch.Todo;
 import org.springframework.web.patch.TodoRepository;
-import org.springframework.web.patch.jsonpatch.JsonPatchPatch;
+import org.springframework.web.patch.jsonpatch.JsonPatch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -74,7 +74,7 @@ public class DiffSyncSingleResourceTests {
 	
 	private JsonNode applyPatch(Long id, String patchResourceName) throws IOException, JsonProcessingException {
 		Todo todo = todoRepository().findOne(id);
-		Patch jsonPatch = readJsonPatchFromResource(patchResourceName);
+		JsonPatch jsonPatch = readJsonPatchFromResource(patchResourceName);
 
 		JpaPersistenceCallback<Todo> callback = new JpaPersistenceCallback<Todo>(todoRepository(), Todo.class);
 
@@ -82,8 +82,8 @@ public class DiffSyncSingleResourceTests {
 		return sync.apply(todo);
 	}
 	
-	private Patch readJsonPatchFromResource(String resource) throws IOException, JsonProcessingException { 
-		return JsonPatchPatch.fromJsonNode(OBJECT_MAPPER.readTree(resource(resource)));
+	private JsonPatch readJsonPatchFromResource(String resource) throws IOException, JsonProcessingException { 
+		return JsonPatch.fromJsonNode(OBJECT_MAPPER.readTree(resource(resource)));
 	}
 
 	private String resource(String name) throws IOException {
