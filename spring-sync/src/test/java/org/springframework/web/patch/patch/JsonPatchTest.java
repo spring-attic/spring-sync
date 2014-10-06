@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 import static org.junit.Assert.*;
 
@@ -24,6 +24,9 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.patch.Todo;
+import org.springframework.web.patch.patch.JsonPatchMaker;
+import org.springframework.web.patch.patch.Patch;
+import org.springframework.web.patch.patch.PatchException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -43,7 +46,7 @@ public class JsonPatchTest {
 		todos.add(new Todo(5L, "E", false));
 		todos.add(new Todo(6L, "F", false));
 		
-		JsonPatch patch = readJsonPatch("/org/springframework/web/patch/patch-many-successful-operations.json");
+		Patch patch = readJsonPatch("/org/springframework/web/patch/patch-many-successful-operations.json");
 		assertEquals(6, patch.size());
 
 		@SuppressWarnings("unchecked")
@@ -66,12 +69,12 @@ public class JsonPatchTest {
 		todos.add(new Todo(5L, "E", false));
 		todos.add(new Todo(6L, "F", false));
 		
-		JsonPatch patch = readJsonPatch("/org/springframework/web/patch/patch-failing-operation-first.json");
+		Patch patch = readJsonPatch("/org/springframework/web/patch/patch-failing-operation-first.json");
 
 		try {
 			patch.apply(todos);
 			fail();
-		} catch (JsonPatchException e) {
+		} catch (PatchException e) {
 			assertEquals("Test against path '/5/description' failed.", e.getMessage());
 		}
 		
@@ -94,12 +97,12 @@ public class JsonPatchTest {
 		todos.add(new Todo(5L, "E", false));
 		todos.add(new Todo(6L, "F", false));
 		
-		JsonPatch patch = readJsonPatch("/org/springframework/web/patch/patch-failing-operation-in-middle.json");
+		Patch patch = readJsonPatch("/org/springframework/web/patch/patch-failing-operation-in-middle.json");
 
 		try {
 			patch.apply(todos);
 			fail();
-		} catch (JsonPatchException e) {
+		} catch (PatchException e) {
 			assertEquals("Test against path '/5/description' failed.", e.getMessage());
 		}
 		
@@ -113,11 +116,11 @@ public class JsonPatchTest {
 
 	
 	
-	private JsonPatch readJsonPatch(String jsonPatchFile) throws IOException, JsonParseException, JsonMappingException {
+	private Patch readJsonPatch(String jsonPatchFile) throws IOException, JsonParseException, JsonMappingException {
 		ClassPathResource resource = new ClassPathResource(jsonPatchFile);
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node = mapper.readValue(resource.getInputStream(), JsonNode.class);
-		JsonPatch patch = JsonPatch.fromJsonNode(node);
+		Patch patch = new JsonPatchMaker().fromJsonNode(node);
 		return patch;
 	}
 	

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 import static org.junit.Assert.*;
 
@@ -23,6 +23,8 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.web.patch.Todo;
+import org.springframework.web.patch.patch.MoveOperation;
+import org.springframework.web.patch.patch.PatchException;
 
 public class MoveOperationTest {
 
@@ -38,8 +40,8 @@ public class MoveOperationTest {
 			MoveOperation move = new MoveOperation("/1/complete", "/0/complete");
 			move.perform(todos);
 			fail();
-		} catch (JsonPatchException e) {
-			assertEquals("JSON path '/0/complete' is not nullable.", e.getMessage());
+		} catch (PatchException e) {
+			assertEquals("Path '/0/complete' is not nullable.", e.getMessage());
 		}
 		assertFalse(todos.get(1).isComplete());
 
@@ -71,8 +73,8 @@ public class MoveOperationTest {
 			MoveOperation move = new MoveOperation("/1/description", "/0/complete");
 			move.perform(todos);
 			fail();
-		} catch (JsonPatchException e) {
-			assertEquals("JSON path '/0/complete' is not nullable.", e.getMessage());
+		} catch (PatchException e) {
+			assertEquals("Path '/0/complete' is not nullable.", e.getMessage());
 		}
 		assertEquals("B", todos.get(1).getDescription());
 	}

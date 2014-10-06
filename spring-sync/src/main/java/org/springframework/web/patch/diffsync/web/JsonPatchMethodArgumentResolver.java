@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.diffsync.web;
 
 import java.util.List;
 
@@ -25,6 +25,8 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.web.patch.patch.JsonPatchMaker;
+import org.springframework.web.patch.patch.Patch;
 import org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -49,9 +51,9 @@ public class JsonPatchMethodArgumentResolver extends AbstractMessageConverterMet
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		try {
-			Class.forName("org.springframework.web.patch.jsonpatch.JsonPatch");
+			Class.forName("org.springframework.web.patch.patch.Patch");
 			Class<?> paramType = parameter.getParameterType();
-			return JsonPatch.class.isAssignableFrom(paramType);
+			return Patch.class.isAssignableFrom(paramType);
 		} catch (ClassNotFoundException e) {
 			return false;
 		}
@@ -71,7 +73,7 @@ public class JsonPatchMethodArgumentResolver extends AbstractMessageConverterMet
 		}
 		
 		JsonNode jsonNode = (JsonNode) argument;
-		return JsonPatch.fromJsonNode(jsonNode);
+		return new JsonPatchMaker().fromJsonNode(jsonNode); // TODO: Consider *not* creating an instance of JsonPatchMaker here
 	}
 
 	

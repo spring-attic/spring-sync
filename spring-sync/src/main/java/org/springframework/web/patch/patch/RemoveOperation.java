@@ -13,23 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 /**
- * Exception thrown if an error occurs in the course of applying a JSON Patch.
+ * <p>Remove operation.</p>
+ * 
+ * <p>
+ * Removes the value at the given path.
+ * Will throw a {@link PatchException} if the given path isn't valid or if the path is non-nullable.
+ * </p>
  * 
  * @author Craig Walls
  */
-public class JsonPatchException extends RuntimeException {
+public class RemoveOperation extends PatchOperation {
 
-	private static final long serialVersionUID = 1L;
-
-	public JsonPatchException(String message) {
-		super(message);
+	/**
+	 * Constructs the remove operation
+	 * @param path The path of the value to be removed. (e.g., '/foo/bar/4')
+	 */
+	public RemoveOperation(String path) {
+		super("remove", path);
 	}
 	
-	public JsonPatchException(String message, Exception e) {
-		super(message, e);
+	@Override
+	void perform(Object target) {
+		popValueAtPath(target, path);
 	}
 
 }

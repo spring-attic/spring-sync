@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 /**
- * <p>JSON Patch "move" operation.</p>
+ * <p>Move operation.</p>
  * 
  * <p>
  * Moves a value from the given "from" path to the given "path".
- * Will throw a JsonPatchException if either path is invalid or if the from path is non-nullable.
+ * Will throw a {@link PatchException} if either path is invalid or if the from path is non-nullable.
  * </p>
  * 
  * <p>
@@ -33,14 +33,14 @@ package org.springframework.web.patch.jsonpatch;
  * 
  * @author Craig Walls
  */
-public class MoveOperation extends JsonPatchOperation {
+public class MoveOperation extends PatchOperation {
 
 	private String from;
 
 	/**
-	 * Constructs the move operation
-	 * @param path The "path" property of the operation in the JSON Patch. (e.g., '/foo/bar/4')
-	 * @param from The "from" property of the operation in the JSON Patch. Should be a path (e.g., '/foo/bar/5')
+	 * Constructs the move operation.
+	 * @param path The path to move the source value to. (e.g., '/foo/bar/4')
+	 * @param from The source path from which a value will be moved. (e.g., '/foo/bar/5')
 	 */
 	public MoveOperation(String path, String from) {
 		super("copy", path);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 import static org.junit.Assert.*;
 
@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.web.patch.Todo;
+import org.springframework.web.patch.patch.AddOperation;
 
 public class AddOperationTest {
 
@@ -34,12 +35,26 @@ public class AddOperationTest {
 		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
 		
-		AddOperation add = new AddOperation("/1/complete", "true");
+		AddOperation add = new AddOperation("/1/complete", true);
 		add.perform(todos);
 		
 		assertTrue(todos.get(1).isComplete());
 	}
-	
+
+	@Test
+	public void addStringPropertyValue() throws Exception {
+		// initial Todo list
+		List<Todo> todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", false));
+		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(3L, "C", false));
+		
+		AddOperation add = new AddOperation("/1/description", "BBB");
+		add.perform(todos);
+		
+		assertEquals("BBB", todos.get(1).getDescription());
+	}
+
 	
 	@Test
 	public void addItemToList() throws Exception {
@@ -49,10 +64,18 @@ public class AddOperationTest {
 		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
 		
-		AddOperation add = new AddOperation("/1", "{\"description\":\"D\",\"complete\":true}");
+		AddOperation add = new AddOperation("/1", new Todo(null, "D", true));
 		add.perform(todos);
 		
 		assertEquals(4, todos.size());
+		assertEquals("A", todos.get(0).getDescription());
+		assertFalse(todos.get(0).isComplete());
+		assertEquals("D", todos.get(1).getDescription());
+		assertTrue(todos.get(1).isComplete());
+		assertEquals("B", todos.get(2).getDescription());
+		assertFalse(todos.get(2).isComplete());
+		assertEquals("C", todos.get(3).getDescription());
+		assertFalse(todos.get(3).isComplete());
 	}
 	
 }

@@ -20,8 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.springframework.web.patch.jsonpatch.JsonDiff;
-import org.springframework.web.patch.jsonpatch.JsonPatch;
+import org.springframework.web.patch.patch.JsonDiff;
+import org.springframework.web.patch.patch.JsonPatchMaker;
+import org.springframework.web.patch.patch.Patch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -34,7 +35,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class DiffSync<T> {
 
-	private JsonPatch patch;
+	private Patch patch;
 	
 	private ShadowStore shadowStore;
 
@@ -48,7 +49,7 @@ public class DiffSync<T> {
 	 * @param shadowStore the shadow store
 	 * @param persistenceCallback an implementation of {@link PersistenceCallback} used to save and delete items while performing the patch
 	 */
-	public DiffSync(JsonPatch patch, ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback) {
+	public DiffSync(Patch patch, ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback) {
 		this.persistenceCallback = persistenceCallback;
 		this.patch = patch;
 		this.shadowStore = shadowStore;
@@ -103,7 +104,7 @@ public class DiffSync<T> {
 		shadowStore.putShadow(shadowStoreKey, shadow);
 		
 		// Return the return patch.
-		return returnPatch;
+		return returnPatch; // TODO: Return a Patch instead of a JsonNode
 	}
 	
 	/**
@@ -157,13 +158,13 @@ public class DiffSync<T> {
 		JsonNode returnPatch = new JsonDiff().diff(shadow, workCopy);
 		
 		// Apply the return patch to the shadow to sync it up with the working copy.
-		shadow = (List<T>) JsonPatch.fromJsonNode(returnPatch).apply(shadow);
+		shadow = (List<T>) new JsonPatchMaker().fromJsonNode(returnPatch).apply(shadow);
 		
 		// Store the shadow
 		shadowStore.putShadow(shadowStoreKey, shadow);
 		
 		// Return the patch
-		return returnPatch;
+		return returnPatch;  // TODO : Return a Patch instead of a JsonNode
 	}
 	
 	

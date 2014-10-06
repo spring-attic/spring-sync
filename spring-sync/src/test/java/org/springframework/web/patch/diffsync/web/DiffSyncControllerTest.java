@@ -30,7 +30,6 @@ import org.springframework.web.patch.diffsync.JpaPersistenceCallback;
 import org.springframework.web.patch.diffsync.MapBasedShadowStore;
 import org.springframework.web.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.web.patch.diffsync.ShadowStore;
-import org.springframework.web.patch.jsonpatch.JsonPatchMethodArgumentResolver;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=EmbeddedDataSourceConfig.class)

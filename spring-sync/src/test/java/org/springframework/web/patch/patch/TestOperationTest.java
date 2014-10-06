@@ -13,58 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
-
-import static org.junit.Assert.*;
+package org.springframework.web.patch.patch;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 import org.springframework.web.patch.Todo;
+import org.springframework.web.patch.patch.PatchException;
+import org.springframework.web.patch.patch.TestOperation;
 
-public class ReplaceOperationTest {
+public class TestOperationTest {
 
 	@Test
-	public void replaceBooleanPropertyValue() throws Exception {
+	public void testPropertyValueEquals() throws Exception {
 		// initial Todo list
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", false));
-		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(2L, "B", true));
 		todos.add(new Todo(3L, "C", false));
 		
-		ReplaceOperation replace = new ReplaceOperation("/1/complete", "true");
-		replace.perform(todos);
-		
-		assertTrue(todos.get(1).isComplete());
+		TestOperation test = new TestOperation("/0/complete", false);
+		test.perform(todos);
+
+		TestOperation test2 = new TestOperation("/1/complete", true);
+		test2.perform(todos);
+
 	}
 
-	@Test
-	public void replaceTextPropertyValue() throws Exception {
+	@Test(expected=PatchException.class)
+	public void testPropertyValueNotEquals() throws Exception {
 		// initial Todo list
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", false));
-		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(2L, "B", true));
 		todos.add(new Todo(3L, "C", false));
 		
-		ReplaceOperation replace = new ReplaceOperation("/1/description", "\"BBB\"");
-		replace.perform(todos);
-
-		assertEquals("BBB", todos.get(1).getDescription());
+		TestOperation test = new TestOperation("/0/complete", true);
+		test.perform(todos);
 	}
-
+	
 	@Test
-	public void replaceTextPropertyValueWithANumber() throws Exception {
-		// initial Todo list
+	public void testListElementEquals() throws Exception {
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", false));
-		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(2L, "B", true));
 		todos.add(new Todo(3L, "C", false));
 		
-		ReplaceOperation replace = new ReplaceOperation("/1/description", "22");
-		replace.perform(todos);
+		TestOperation test = new TestOperation("/1", new Todo(2L, "B", true));
+		test.perform(todos);
 
-		assertEquals("22", todos.get(1).getDescription());
 	}
 
+	// TODO: Test list elements
+	
 }

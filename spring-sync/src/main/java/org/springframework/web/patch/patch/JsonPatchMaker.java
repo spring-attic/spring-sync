@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,62 +22,30 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-/**
- * Represents a JSON Patch.
- * 
- * @author Craig Walls
- */
-public class JsonPatch {
-
-	private final List<JsonPatchOperation> operations;
-
-	private JsonPatch(List<JsonPatchOperation> operations) {
-		this.operations = operations;
-	}
-	
-	/**
-	 * @return the number of operations that make up this patch.
-	 */
-	public int size() {
-		return operations.size();
-	}
-	
-	/**
-	 * Applies the JSON Patch to a given Object graph.
-	 * @param in the object graph to apply the patch to.
-	 * @return an object graph modified by the patch.
-	 * @throws JsonPatchException if there are any errors while applying the patch.
-	 */
-	public Object apply(Object in) throws JsonPatchException {
-		// TODO: Make defensive copy of in before performing operations so that
-		//       if any op fails, the original left untouched
-		Object work = in; // not really a defensive copy
-		
-		for (JsonPatchOperation operation : operations) {
-			operation.perform(work);
-		}
-
-		return work;
-	}
+public class JsonPatchMaker {
 
 	/**
 	 * Constructs a JsonPatch object given a JsonNode.
 	 * @param jsonNode a JsonNode containing the JSON Patch
 	 * @return a JsonPatch
 	 */
-	public static JsonPatch fromJsonNode(JsonNode jsonNode) {
+	public Patch fromJsonNode(JsonNode jsonNode) {
 		if (!(jsonNode instanceof ArrayNode)) {
 			throw new IllegalArgumentException("JsonNode must be an instance of ArrayNode");
 		}
 		
 		ArrayNode opNodes = (ArrayNode) jsonNode;
-		List<JsonPatchOperation> ops = new ArrayList<JsonPatchOperation>(opNodes.size());
+		List<PatchOperation> ops = new ArrayList<PatchOperation>(opNodes.size());
 		for(Iterator<JsonNode> elements = opNodes.elements(); elements.hasNext(); ) {
 			JsonNode opNode = elements.next();
 			
 			String opType = opNode.get("op").textValue();
 			String path = opNode.get("path").textValue();
-			String value = opNode.has("value") ? opNode.get("value").toString() : null;
+			
+			JsonNode valueNode = opNode.get("value");
+			Object value = valueFromJsonNode(path, valueNode);
+			// TODO: Pass value to the operations instead of valueString
+			
 			String from = opNode.has("from") ? opNode.get("from").textValue() : null;
 
 			if (opType.equals("test")) {
@@ -93,11 +61,57 @@ public class JsonPatch {
 			} else if (opType.equals("move")) {
 				ops.add(new MoveOperation(path, from));
 			} else {
-				throw new JsonPatchException("Unrecognized operation type: " + opType);
+				throw new PatchException("Unrecognized operation type: " + opType);
 			}
 		}
 		
-		return new JsonPatch(ops);
+		return new Patch(ops);
 	}
+	
+	public JsonNode toJsonNode(Patch patch) {
+		return null; // TODO
+	}
+
+	private Object valueFromJsonNode(String path, JsonNode valueNode) {
+		if (valueNode == null || valueNode.isNull()) {
+			return null;
+		} else if (valueNode.isTextual()) {
+			return valueNode.asText();
+		} else if (valueNode.isFloatingPointNumber()) {
+			return valueNode.asDouble();
+		} else if (valueNode.isBoolean()) {
+			return valueNode.asBoolean();
+		} else if (valueNode.isInt()) {
+			return valueNode.asInt();
+		} else if (valueNode.isLong()) {
+			return valueNode.asLong();
+		}
+
+		// TODO: Must be an object or an array
+		
+		if (valueNode.isObject()) {
+			System.out.println("IT'S AN OBJECT!");
+			return new JsonLateObjectEvaluator(path, valueNode);
+		} else if (valueNode.isArray()) {
+			// TODO: Convert valueNode to array
+		}
+		
+		return null;
+		
+		
+//		Object parent = parentExpression != null ? parentExpression.getValue(target) : null;
+//		Integer listIndex = targetListIndex(path);
+//		if (parent == null || !(parent instanceof List) || listIndex == null) {
+//			spelExpression.setValue(target, value);
+//		} else {
+//			@SuppressWarnings("unchecked")
+//			List<Object> list = (List<Object>) parentExpression.getValue(target);
+//			Class<?> guessedType = guessListType(list);
+//			Object newItem = MAPPER.readValue((String) value, guessedType);
+//		}
+	}
+	
+	
+
 	
 }

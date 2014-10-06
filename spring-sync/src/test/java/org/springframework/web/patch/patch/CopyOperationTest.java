@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 import static org.junit.Assert.*;
 
@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.web.patch.Todo;
+import org.springframework.web.patch.patch.CopyOperation;
 
 public class CopyOperationTest {
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 import static org.junit.Assert.*;
 
@@ -22,35 +22,50 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.web.patch.Todo;
+import org.springframework.web.patch.patch.ReplaceOperation;
 
-public class RemoveOperationTest {
+public class ReplaceOperationTest {
 
 	@Test
-	public void removePropertyFromObject() throws Exception {
+	public void replaceBooleanPropertyValue() throws Exception {
 		// initial Todo list
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", false));
 		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
-
-		new RemoveOperation("/1/description").perform(todos);
 		
-		assertNull(todos.get(1).getDescription());
+		ReplaceOperation replace = new ReplaceOperation("/1/complete", true);
+		replace.perform(todos);
+		
+		assertTrue(todos.get(1).isComplete());
 	}
 
 	@Test
-	public void removeItemFromList() throws Exception {
+	public void replaceTextPropertyValue() throws Exception {
 		// initial Todo list
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", false));
 		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
-
-		new RemoveOperation("/1").perform(todos);
 		
-		assertEquals(2, todos.size());
-		assertEquals("A", todos.get(0).getDescription());
-		assertEquals("C", todos.get(1).getDescription());
+		ReplaceOperation replace = new ReplaceOperation("/1/description", "BBB");
+		replace.perform(todos);
+
+		assertEquals("BBB", todos.get(1).getDescription());
+	}
+
+	@Test
+	public void replaceTextPropertyValueWithANumber() throws Exception {
+		// initial Todo list
+		List<Todo> todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", false));
+		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(3L, "C", false));
+		
+		ReplaceOperation replace = new ReplaceOperation("/1/description", 22);
+		replace.perform(todos);
+
+		assertEquals("22", todos.get(1).getDescription());
 	}
 
 }

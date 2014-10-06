@@ -13,36 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 /**
- * <p>JSON Patch "add" operation.</p>
+ * <p>Add operation.</p>
  * 
  * <p>
  * Adds a new value to the given "path".
- * Will throw a JsonPatchException if the path is invalid or if the given value 
+ * Will throw a {@link PatchException} if the path is invalid or if the given value 
  * is not assignable to the given path.
  * </p>
  * 
  * @author Craig Walls
  */
-public class AddOperation extends JsonPatchOperation {
-
-	private String value;
+public class AddOperation extends PatchOperation {
 
 	/**
 	 * Constructs the add operation
-	 * @param path The "path" property of the operation in the JSON Patch. (e.g., '/foo/bar/4')
-	 * @param value The "value" property of the operation in the JSON Patch. The String value should contain valid JSON.
+	 * @param path The path where the value will be added. (e.g., '/foo/bar/4')
+	 * @param value The value to add.
 	 */
-	public AddOperation(String path, String value) {
-		super("add", path);
-		this.value = value;
+	public AddOperation(String path, Object value) {
+		super("add", path, value);
 	}
 	
 	@Override
 	void perform(Object targetObject) {
-		addValue(targetObject, value);
+		addValue(targetObject, evaluateValue(targetObject));
 	}
 	
 }

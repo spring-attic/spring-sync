@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 /**
- * <p>JSON Patch "replace" operation.</p>
+ * <p>Replace operation.</p>
  * 
  * <p>
  * Replaces the value at the given path with a new value.
@@ -24,23 +24,20 @@ package org.springframework.web.patch.jsonpatch;
  * 
  * @author Craig Walls
  */
-public class ReplaceOperation extends JsonPatchOperation {
-
-	private final String value;
+public class ReplaceOperation extends PatchOperation {
 
 	/**
 	 * Constructs the replace operation
-	 * @param path The "path" property of the operation in the JSON Patch. (e.g., '/foo/bar/4')
-	 * @param value The "value" property of the operation in the JSON Patch. The String value should contain valid JSON.
+	 * @param path The path whose value is to be replaced. (e.g., '/foo/bar/4')
+	 * @param value The value that will replace the current path value.
 	 */
-	public ReplaceOperation(String path, String value) {
-		super("replace", path);
-		this.value = value;
+	public ReplaceOperation(String path, Object value) {
+		super("replace", path, value);
 	}
 	
 	@Override
 	void perform(Object targetObject) {
-		setValue(targetObject, value);
+		setValue(targetObject, evaluateValue(targetObject));
 	}
 	
 }

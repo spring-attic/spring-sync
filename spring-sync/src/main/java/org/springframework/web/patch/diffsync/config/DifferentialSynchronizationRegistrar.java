@@ -31,7 +31,7 @@ import org.springframework.web.patch.diffsync.MapBasedShadowStore;
 import org.springframework.web.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.web.patch.diffsync.ShadowStore;
 import org.springframework.web.patch.diffsync.web.DiffSyncController;
-import org.springframework.web.patch.jsonpatch.JsonPatchMethodArgumentResolver;
+import org.springframework.web.patch.diffsync.web.JsonPatchMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration

@@ -13,56 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
+
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 import org.springframework.web.patch.Todo;
+import org.springframework.web.patch.patch.RemoveOperation;
 
-public class TestOperationTest {
+public class RemoveOperationTest {
 
 	@Test
-	public void testPropertyValueEquals() throws Exception {
+	public void removePropertyFromObject() throws Exception {
 		// initial Todo list
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", false));
-		todos.add(new Todo(2L, "B", true));
+		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
+
+		new RemoveOperation("/1/description").perform(todos);
 		
-		TestOperation test = new TestOperation("/0/complete", "false");
-		test.perform(todos);
-
-		TestOperation test2 = new TestOperation("/1/complete", "true");
-		test2.perform(todos);
-
+		assertNull(todos.get(1).getDescription());
 	}
 
-	@Test(expected=JsonPatchException.class)
-	public void testPropertyValueNotEquals() throws Exception {
+	@Test
+	public void removeItemFromList() throws Exception {
 		// initial Todo list
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", false));
-		todos.add(new Todo(2L, "B", true));
+		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
-		
-		TestOperation test = new TestOperation("/0/complete", "true");
-		test.perform(todos);
-	}
-	
-	@Test
-	public void testListElementEquals() throws Exception {
-		List<Todo> todos = new ArrayList<Todo>();
-		todos.add(new Todo(1L, "A", false));
-		todos.add(new Todo(2L, "B", true));
-		todos.add(new Todo(3L, "C", false));
-		
-		TestOperation test = new TestOperation("/1", "{\"id\":2,\"description\":\"B\",\"complete\":true}");
-		test.perform(todos);
 
+		new RemoveOperation("/1").perform(todos);
+		
+		assertEquals(2, todos.size());
+		assertEquals("A", todos.get(0).getDescription());
+		assertEquals("C", todos.get(1).getDescription());
 	}
 
-	// TODO: Test list elements
-	
 }

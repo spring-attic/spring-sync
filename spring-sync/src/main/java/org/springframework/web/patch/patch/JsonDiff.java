@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.web.patch.jsonpatch;
+package org.springframework.web.patch.patch;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -40,7 +40,7 @@ public class JsonDiff {
 	
 	private JsonNodeFactory nodeFactory = new JsonNodeFactory(true);;
 
-	public JsonNode diff(Object original, Object modified) throws JsonPatchException {
+	public JsonNode diff(Object original, Object modified) throws PatchException {
 		try {
 			ArrayNode patch = nodeFactory.arrayNode();
 			
@@ -52,7 +52,7 @@ public class JsonDiff {
 			
 			return patch;
 		} catch (Exception e) {
-			throw new JsonPatchException("Error performing diff:", e);
+			throw new PatchException("Error performing diff:", e);
 		}
 	}
 	

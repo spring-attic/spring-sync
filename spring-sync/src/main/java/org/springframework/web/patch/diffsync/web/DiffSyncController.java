@@ -30,8 +30,8 @@ import org.springframework.web.patch.diffsync.DiffSync;
 import org.springframework.web.patch.diffsync.PersistenceCallback;
 import org.springframework.web.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.web.patch.diffsync.ShadowStore;
-import org.springframework.web.patch.jsonpatch.JsonPatch;
-import org.springframework.web.patch.jsonpatch.JsonPatchException;
+import org.springframework.web.patch.patch.Patch;
+import org.springframework.web.patch.patch.PatchException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -54,7 +54,7 @@ public class DiffSyncController {
 			method=RequestMethod.PATCH, 
 			consumes={"application/json", "application/json-patch+json"}, 
 			produces={"application/json", "application/json-patch+json"})
-	public ResponseEntity<JsonNode> patch(@PathVariable("resource") String resource, JsonPatch patch) throws JsonPatchException {
+	public ResponseEntity<JsonNode> patch(@PathVariable("resource") String resource, Patch patch) throws PatchException {
 		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);
 		
 		List<?> items = (List<?>) persistenceCallback.findAll();
