@@ -23,8 +23,6 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.patch.Patch;
-import org.springframework.patch.PatchException;
 import org.springframework.patch.json.JsonPatchMaker;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -45,7 +43,7 @@ public class JsonPatchTest {
 		todos.add(new Todo(5L, "E", false));
 		todos.add(new Todo(6L, "F", false));
 		
-		Patch patch = readJsonPatch("/org/springframework/web/patch/patch-many-successful-operations.json");
+		Patch patch = readJsonPatch("/org/springframework/patch/patch-many-successful-operations.json");
 		assertEquals(6, patch.size());
 
 		@SuppressWarnings("unchecked")
@@ -68,7 +66,7 @@ public class JsonPatchTest {
 		todos.add(new Todo(5L, "E", false));
 		todos.add(new Todo(6L, "F", false));
 		
-		Patch patch = readJsonPatch("/org/springframework/web/patch/patch-failing-operation-first.json");
+		Patch patch = readJsonPatch("/org/springframework/patch/patch-failing-operation-first.json");
 
 		try {
 			patch.apply(todos);
@@ -96,7 +94,7 @@ public class JsonPatchTest {
 		todos.add(new Todo(5L, "E", false));
 		todos.add(new Todo(6L, "F", false));
 		
-		Patch patch = readJsonPatch("/org/springframework/web/patch/patch-failing-operation-in-middle.json");
+		Patch patch = readJsonPatch("/org/springframework/patch/patch-failing-operation-in-middle.json");
 
 		try {
 			patch.apply(todos);
