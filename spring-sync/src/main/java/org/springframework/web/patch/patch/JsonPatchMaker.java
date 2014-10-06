@@ -20,9 +20,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JsonPatchMaker {
+
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	/**
 	 * Constructs a JsonPatch object given a JsonNode.
@@ -69,7 +74,25 @@ public class JsonPatchMaker {
 	}
 	
 	public JsonNode toJsonNode(Patch patch) {
-		return null; // TODO
+		
+		List<PatchOperation> operations = patch.getOperations();
+		JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+		ArrayNode patchNode = nodeFactory.arrayNode();
+		for (PatchOperation operation : operations) {
+			ObjectNode opNode = nodeFactory.objectNode();
+			opNode.set("op", nodeFactory.textNode(operation.getOp()));
+			opNode.set("path", nodeFactory.textNode(operation.getPath()));
+			if (operation instanceof FromOperation) {
+				FromOperation fromOp = (FromOperation) operation;
+				opNode.set("from", nodeFactory.textNode(fromOp.getFrom()));
+			}
+			Object value = operation.getValue();
+			if (value != null) {
+				opNode.set("value", MAPPER.valueToTree(value));
+			}
+		}
+		
+		return patchNode;
 	}
 
 	private Object valueFromJsonNode(String path, JsonNode valueNode) {
@@ -85,30 +108,13 @@ public class JsonPatchMaker {
 			return valueNode.asInt();
 		} else if (valueNode.isLong()) {
 			return valueNode.asLong();
-		}
-
-		// TODO: Must be an object or an array
-		
-		if (valueNode.isObject()) {
-			System.out.println("IT'S AN OBJECT!");
+		} else if (valueNode.isObject()) {
 			return new JsonLateObjectEvaluator(path, valueNode);
 		} else if (valueNode.isArray()) {
 			// TODO: Convert valueNode to array
 		}
 		
 		return null;
-		
-		
-//		Object parent = parentExpression != null ? parentExpression.getValue(target) : null;
-//		Integer listIndex = targetListIndex(path);
-//		if (parent == null || !(parent instanceof List) || listIndex == null) {
-//			spelExpression.setValue(target, value);
-//		} else {
-//			@SuppressWarnings("unchecked")
-//			List<Object> list = (List<Object>) parentExpression.getValue(target);
-//			Class<?> guessedType = guessListType(list);
-//			Object newItem = MAPPER.readValue((String) value, guessedType);
-//		}
 	}
 	
 	

@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.springframework.web.patch.patch.JsonDiff;
-import org.springframework.web.patch.patch.JsonPatchMaker;
+import org.springframework.web.patch.patch.Diff;
 import org.springframework.web.patch.patch.Patch;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -71,7 +70,7 @@ public class DiffSync<T> {
 	 * @return a {@link JsonNode} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public JsonNode apply(T target) {
+	public Patch apply(T target) {
 		if (target instanceof List) {
 			return apply((List) target);
 		}
@@ -98,7 +97,7 @@ public class DiffSync<T> {
 		}
 		
 		// Calculate the return patch by diff'ing the shadow and working copy.
-		JsonNode returnPatch = new JsonDiff().diff(shadow, workCopy);
+		Patch returnPatch = new Diff().diff(shadow, workCopy);
 		
 		// Store the shadow.
 		shadowStore.putShadow(shadowStoreKey, shadow);
@@ -113,7 +112,7 @@ public class DiffSync<T> {
 	 * @return a {@link JsonNode} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
 	 */
 	@SuppressWarnings("unchecked")
-	public JsonNode apply(List<T> target) {
+	public Patch apply(List<T> target) {
 		// Clone the target into a working copy so that we can diff it later.
 		// Must be a deep clone or else the individual items in the list will still be the exact same instances
 		// and could be changed in both the target and the working copy.
@@ -155,10 +154,10 @@ public class DiffSync<T> {
 		}
 		
 		// Calculate the return patch by diff'ing the shadow and working copy
-		JsonNode returnPatch = new JsonDiff().diff(shadow, workCopy);
+		Patch returnPatch = new Diff().diff(shadow, workCopy);
 		
 		// Apply the return patch to the shadow to sync it up with the working copy.
-		shadow = (List<T>) new JsonPatchMaker().fromJsonNode(returnPatch).apply(shadow);
+		shadow = (List<T>) returnPatch.apply(shadow);
 		
 		// Store the shadow
 		shadowStore.putShadow(shadowStoreKey, shadow);

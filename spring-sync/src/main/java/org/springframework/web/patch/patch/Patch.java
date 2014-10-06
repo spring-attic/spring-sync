@@ -37,6 +37,10 @@ public class Patch {
 		return operations.size();
 	}
 	
+	public List<PatchOperation> getOperations() {
+		return operations;
+	}
+	
 	/**
 	 * Applies the Patch to a given Object graph.
 	 * @param in the object graph to apply the patch to.

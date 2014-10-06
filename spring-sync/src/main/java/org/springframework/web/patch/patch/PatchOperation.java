@@ -53,6 +53,10 @@ public abstract class PatchOperation {
 		return path;
 	}
 	
+	public Object getValue() {
+		return value;
+	}
+	
 	abstract void perform(Object o);
 	
 	public Object popValueAtPath(Object target, String removePath) {
@@ -87,15 +91,15 @@ public abstract class PatchOperation {
 		}
 	}
 
-	public void setValue(Object target, Object value) {
+	public void setValueOnTarget(Object target, Object value) {
 		spelExpression.setValue(target, value);
 	}
 
-	public Object getValue(Object target) {
+	public Object getValueFromTarget(Object target) {
 		return spelExpression.getValue(target);
 	}
 
-	protected Object evaluateValue(Object targetObject) {
+	protected Object evaluateValueFromTarget(Object targetObject) {
 		return value instanceof LateObjectEvaluator ? ((LateObjectEvaluator) value).evaluate(targetObject) : value;		
 	}
 

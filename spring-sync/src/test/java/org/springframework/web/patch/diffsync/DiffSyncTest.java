@@ -36,9 +36,7 @@ import org.springframework.web.patch.patch.JsonPatchMaker;
 import org.springframework.web.patch.patch.Patch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=EmbeddedDataSourceConfig.class)
@@ -57,9 +55,8 @@ public class DiffSyncTest {
 	
 	@Test
 	public void noChangesFromEitherSide() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-empty");
-		assertTrue(returnPatch.isArray());
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch("patch-empty");
+		assertEquals(0, returnPatch.size());
 		
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(3, all.size());
@@ -76,9 +73,8 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchSendsSingleStatusChange() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-change-single-status");
-		assertTrue(returnPatch.isArray());
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch("patch-change-single-status");
+		assertEquals(0, returnPatch.size());
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(3, all.size());
@@ -95,9 +91,8 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchSendsAStatusChangeAndADescriptionChangeForSameItem() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-change-single-status-and-desc");
-		assertTrue(returnPatch.isArray());
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch("patch-change-single-status-and-desc");
+		assertEquals(0, returnPatch.size());
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(3, all.size());
@@ -114,9 +109,8 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchSendsAStatusChangeAndADescriptionChangeForDifferentItems() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-change-two-status-and-desc");
-		assertTrue(returnPatch.isArray());
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch("patch-change-two-status-and-desc");
+		assertEquals(0, returnPatch.size());
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(3, all.size());
@@ -133,18 +127,17 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchAddsAnItem() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-add-new-item");
-		assertTrue(returnPatch.isArray());
+		Patch returnPatch = applyPatch("patch-add-new-item");
 
-		ArrayNode patchArray = (ArrayNode) returnPatch;
-		assertEquals(2, patchArray.size());
-		JsonNode testNode = patchArray.get(0);
-		assertEquals("test", testNode.get("op").textValue());
-		assertEquals("/3/id", testNode.get("path").textValue());
-		JsonNode addNode = patchArray.get(1);
-		assertEquals("add", addNode.get("op").textValue());
-		assertEquals("/3/id", addNode.get("path").textValue());
-		assertEquals(4L, addNode.get("value").longValue());
+//		Patch patchArray = returnPatch;
+		assertEquals(2, returnPatch.size());
+//		JsonNode testNode = patchArray.get(0);
+//		assertEquals("test", testNode.get("op").textValue());
+//		assertEquals("/3/id", testNode.get("path").textValue());
+//		JsonNode addNode = patchArray.get(1);
+//		assertEquals("add", addNode.get("op").textValue());
+//		assertEquals("/3/id", addNode.get("path").textValue());
+//		assertEquals(4L, addNode.get("value").longValue());
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(4, all.size());
@@ -164,9 +157,8 @@ public class DiffSyncTest {
 	
 	@Test
 	public void patchRemovesAnItem() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-remove-item");
-		assertTrue(returnPatch.isArray());
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch("patch-remove-item");
+		assertEquals(0, returnPatch.size());
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(2, all.size());
@@ -180,9 +172,8 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchRemovesTwoItems() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-remove-two-items");
-		assertTrue(returnPatch.isArray());
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch("patch-remove-two-items");
+		assertEquals(0, returnPatch.size());
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(1, all.size());
@@ -194,9 +185,8 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchUpdatesStatusOnOneItemAndRemovesTwoOtherItems() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-change-status-and-delete-two-items");
-		assertTrue(returnPatch.isArray());
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch("patch-change-status-and-delete-two-items");
+		assertEquals(0, returnPatch.size());
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(1, all.size());
@@ -207,9 +197,8 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchRemovesTwoOtherItemsAndUpdatesStatusOnAnother() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-delete-twoitems-and-change-status-on-another");
-		assertTrue(returnPatch.isArray());
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch("patch-delete-twoitems-and-change-status-on-another");
+		assertEquals(0, returnPatch.size());
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(1, all.size());
@@ -220,9 +209,8 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchChangesItemStatusAndThenRemovesThatSameItem() throws Exception {
-		JsonNode returnPatch = applyPatch("patch-modify-then-remove-item");
-		assertTrue(returnPatch.isArray());
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch("patch-modify-then-remove-item");
+		assertEquals(0, returnPatch.size());
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(2, all.size());
@@ -239,7 +227,7 @@ public class DiffSyncTest {
 	// private helpers
 	//
 	
-	private JsonNode applyPatch(String patchResourceName) throws IOException, JsonProcessingException {
+	private Patch applyPatch(String patchResourceName) throws IOException, JsonProcessingException {
 		Iterable<Todo> allTodos = todoRepository().findAll();
 		Patch jsonPatch = readJsonPatchFromResource(patchResourceName);
 		

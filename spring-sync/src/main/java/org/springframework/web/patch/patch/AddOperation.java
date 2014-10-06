@@ -39,7 +39,7 @@ public class AddOperation extends PatchOperation {
 	
 	@Override
 	void perform(Object targetObject) {
-		addValue(targetObject, evaluateValue(targetObject));
+		addValue(targetObject, evaluateValueFromTarget(targetObject));
 	}
 	
 }

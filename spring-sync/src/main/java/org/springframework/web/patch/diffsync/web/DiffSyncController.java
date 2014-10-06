@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.patch.diffsync.DiffSync;
@@ -32,8 +33,6 @@ import org.springframework.web.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.web.patch.diffsync.ShadowStore;
 import org.springframework.web.patch.patch.Patch;
 import org.springframework.web.patch.patch.PatchException;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
 public class DiffSyncController {
@@ -52,20 +51,20 @@ public class DiffSyncController {
 	@RequestMapping(
 			value="${spring.diffsync.path:}/{resource}",
 			method=RequestMethod.PATCH, 
-			consumes={"application/json", "application/json-patch+json"}, 
-			produces={"application/json", "application/json-patch+json"})
-	public ResponseEntity<JsonNode> patch(@PathVariable("resource") String resource, Patch patch) throws PatchException {
+			consumes={"application/json-patch+json"}, 
+			produces={"application/json-patch+json"})
+	public ResponseEntity<Patch> patch(@PathVariable("resource") String resource, @RequestBody Patch patch) throws PatchException {
 		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);
 		
 		List<?> items = (List<?>) persistenceCallback.findAll();
 		
 		DiffSync<Object> sync = new DiffSync(patch, shadowStore, persistenceCallback);
-		JsonNode returnPatch = sync.apply(items);
+		Patch returnPatch = sync.apply(items);
 
 		// return returnPatch
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType("application", "json-patch+json"));
-		ResponseEntity<JsonNode> responseEntity = new ResponseEntity<JsonNode>(returnPatch, headers, HttpStatus.OK);
+		ResponseEntity<Patch> responseEntity = new ResponseEntity<Patch>(returnPatch, headers, HttpStatus.OK);
 		
 		return responseEntity;
 	}

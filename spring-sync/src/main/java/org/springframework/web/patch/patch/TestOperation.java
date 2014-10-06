@@ -41,7 +41,7 @@ public class TestOperation extends PatchOperation {
 	
 	@Override
 	void perform(Object targetObject) {
-		if (!ObjectUtils.nullSafeEquals(evaluateValue(targetObject), getValue(targetObject))) {
+		if (!ObjectUtils.nullSafeEquals(evaluateValueFromTarget(targetObject), getValueFromTarget(targetObject))) {
 			throw new PatchException("Test against path '" + path + "' failed.");
 		}
 	}

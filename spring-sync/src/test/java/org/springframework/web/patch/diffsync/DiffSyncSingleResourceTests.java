@@ -19,9 +19,7 @@ import org.springframework.web.patch.patch.JsonPatchMaker;
 import org.springframework.web.patch.patch.Patch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=EmbeddedDataSourceConfig.class)
@@ -35,9 +33,8 @@ public class DiffSyncSingleResourceTests {
 
 	@Test
 	public void noChange() throws Exception {
-		JsonNode returnPatch = applyPatch(1L, "patch-empty");
-		assertTrue(returnPatch instanceof ArrayNode);
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch(1L, "patch-empty");
+		assertEquals(0, returnPatch.size());
 
 		Todo todo = repository.findOne(1L);
 		assertEquals(1L, todo.getId().longValue());
@@ -47,9 +44,8 @@ public class DiffSyncSingleResourceTests {
 
 	@Test
 	public void statusChange() throws Exception {
-		JsonNode returnPatch = applyPatch(1L, "single-change-status");
-		assertTrue(returnPatch instanceof ArrayNode);
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch(1L, "single-change-status");
+		assertEquals(0, returnPatch.size());
 		
 		Todo todo = repository.findOne(1L);
 		assertEquals(1L, todo.getId().longValue());
@@ -59,9 +55,8 @@ public class DiffSyncSingleResourceTests {
 
 	@Test
 	public void statusAndDescriptionChange() throws Exception {
-		JsonNode returnPatch = applyPatch(1L, "single-change-status-and-desc");
-		assertTrue(returnPatch instanceof ArrayNode);
-		assertEquals(0, ((ArrayNode) returnPatch).size());
+		Patch returnPatch = applyPatch(1L, "single-change-status-and-desc");
+		assertEquals(0, returnPatch.size());
 		
 		Todo todo = repository.findOne(1L);
 		assertEquals(1L, todo.getId().longValue());
@@ -73,7 +68,7 @@ public class DiffSyncSingleResourceTests {
 	// private helpers
 	//
 	
-	private JsonNode applyPatch(Long id, String patchResourceName) throws IOException, JsonProcessingException {
+	private Patch applyPatch(Long id, String patchResourceName) throws IOException, JsonProcessingException {
 		Todo todo = todoRepository().findOne(id);
 		Patch jsonPatch = readJsonPatchFromResource(patchResourceName);
 

@@ -37,7 +37,7 @@ public class ReplaceOperation extends PatchOperation {
 	
 	@Override
 	void perform(Object targetObject) {
-		setValue(targetObject, evaluateValue(targetObject));
+		setValueOnTarget(targetObject, evaluateValueFromTarget(targetObject));
 	}
 	
 }

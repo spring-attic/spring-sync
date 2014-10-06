@@ -51,7 +51,6 @@ public class JsonLateObjectEvaluator implements LateObjectEvaluator {
 				@SuppressWarnings("unchecked")
 				List<Object> list = (List<Object>) parentExpression.getValue(target);
 				Class<?> guessedType = guessListType(list);
-				System.out.println("GUESSED TYPE:  " + guessedType);
 				return MAPPER.readValue(valueNode.traverse(), guessedType);
 			}
 			return null;

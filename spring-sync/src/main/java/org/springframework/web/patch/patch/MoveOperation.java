@@ -33,9 +33,7 @@ package org.springframework.web.patch.patch;
  * 
  * @author Craig Walls
  */
-public class MoveOperation extends PatchOperation {
-
-	private String from;
+public class MoveOperation extends FromOperation {
 
 	/**
 	 * Constructs the move operation.
@@ -43,8 +41,7 @@ public class MoveOperation extends PatchOperation {
 	 * @param from The source path from which a value will be moved. (e.g., '/foo/bar/5')
 	 */
 	public MoveOperation(String path, String from) {
-		super("copy", path);
-		this.from = from;
+		super("copy", path, from);
 	}
 	
 	@Override

@@ -45,9 +45,7 @@ import static org.springframework.web.patch.patch.PathToSpEL.*;
  * 
  * @author Craig Walls
  */
-public class CopyOperation extends PatchOperation {
-
-	private String from;
+public class CopyOperation extends FromOperation {
 
 	/**
 	 * Constructs the copy operation
@@ -55,8 +53,7 @@ public class CopyOperation extends PatchOperation {
 	 * @param from The source path from which a value will be copied. (e.g., '/foo/bar/5')
 	 */
 	public CopyOperation(String path, String from) {
-		super("copy", path);
-		this.from = from;
+		super("copy", path, from);
 	}
 	
 	@Override
