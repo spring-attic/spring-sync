@@ -101,6 +101,7 @@ public class JsonPatchMaker {
 			if (value != null) {
 				opNode.set("value", MAPPER.valueToTree(value));
 			}
+			patchNode.add(opNode);
 		}
 		
 		return patchNode;
