@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.patch.Diff;
-import org.springframework.patch.Patch;
 
 public class DiffTest {
 
@@ -42,10 +40,11 @@ public class DiffTest {
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
 
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/id", test.get("path").textValue());
-//		assertEquals(null, test.get("value"));
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/id", op.getPath());
+		assertNull(op.getValue());
 	}
 	
 	@Test
@@ -55,14 +54,16 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/complete", test.get("path").textValue());
-//		assertFalse(test.get("value").booleanValue());
-//		JsonNode replace = patch.get(1);
-//		assertEquals("replace", replace.get("op").textValue());
-//		assertEquals("/complete", replace.get("path").textValue());
-//		assertTrue(replace.get("value").booleanValue());
+		
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/complete", op.getPath());
+		assertFalse((boolean) op.getValue());
+		op = ops.get(1);
+		assertEquals("replace", op.getOp());
+		assertEquals("/complete", op.getPath());
+		assertTrue((boolean) op.getValue());
 	}
 	
 	@Test
@@ -72,14 +73,15 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/description", test.get("path").textValue());
-//		assertEquals("A", test.get("value").textValue());
-//		JsonNode op = patch.get(1);
-//		assertEquals("replace", op.get("op").textValue());
-//		assertEquals("/description", op.get("path").textValue());
-//		assertEquals("B", op.get("value").textValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/description", op.getPath());
+		assertEquals("A", op.getValue());
+		op = ops.get(1);
+		assertEquals("replace", op.getOp());
+		assertEquals("/description", op.getPath());
+		assertEquals("B", op.getValue());
 	}
 
 	@Test
@@ -89,14 +91,15 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/id", test.get("path").textValue());
-//		assertEquals(1, test.get("value").longValue());
-//		JsonNode op = patch.get(1);
-//		assertEquals("replace", op.get("op").textValue());
-//		assertEquals("/id", op.get("path").textValue());
-//		assertEquals(2, op.get("value").longValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/id", op.getPath());
+		assertEquals(1L, op.getValue());
+		op = ops.get(1);
+		assertEquals("replace", op.getOp());
+		assertEquals("/id", op.getPath());
+		assertEquals(2L, op.getValue());
 	}
 	
 	@Test
@@ -106,22 +109,23 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(4, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/description", test.get("path").textValue());
-//		assertEquals("A", test.get("value").textValue());
-//		JsonNode op = patch.get(1);
-//		assertEquals("replace", op.get("op").textValue());
-//		assertEquals("/description", op.get("path").textValue());
-//		assertEquals("B", op.get("value").textValue());
-//		JsonNode test2 = patch.get(2);
-//		assertEquals("test", test2.get("op").textValue());
-//		assertEquals("/complete", test2.get("path").textValue());
-//		assertFalse(test2.get("value").booleanValue());
-//		JsonNode replace = patch.get(3);
-//		assertEquals("replace", replace.get("op").textValue());
-//		assertEquals("/complete", replace.get("path").textValue());
-//		assertTrue(replace.get("value").booleanValue());		
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/description", op.getPath());
+		assertEquals("A", op.getValue());
+		op = ops.get(1);
+		assertEquals("replace", op.getOp());
+		assertEquals("/description", op.getPath());
+		assertEquals("B", op.getValue());
+		op = ops.get(2);
+		assertEquals("test", op.getOp());
+		assertEquals("/complete", op.getPath());
+		assertEquals(false, op.getValue());
+		op = ops.get(3);
+		assertEquals("replace", op.getOp());
+		assertEquals("/complete", op.getPath());
+		assertEquals(true, op.getValue());
 	}
 	
 	@Test
@@ -132,14 +136,15 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/1/complete", test.get("path").textValue());
-//		assertFalse(test.get("value").booleanValue());
-//		JsonNode replace = patch.get(1);
-//		assertEquals("replace", replace.get("op").textValue());
-//		assertEquals("/1/complete", replace.get("path").textValue());
-//		assertTrue(replace.get("value").booleanValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/1/complete", op.getPath());
+		assertEquals(false, op.getValue());
+		op = ops.get(1);
+		assertEquals("replace", op.getOp());
+		assertEquals("/1/complete", op.getPath());
+		assertEquals(true, op.getValue());
 	}
 
 	@Test
@@ -150,14 +155,15 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/1/description", test.get("path").textValue());
-//		assertEquals("B", test.get("value").textValue());
-//		JsonNode replace = patch.get(1);
-//		assertEquals("replace", replace.get("op").textValue());
-//		assertEquals("/1/description", replace.get("path").textValue());
-//		assertEquals("BBB", replace.get("value").textValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/1/description", op.getPath());
+		assertEquals("B", op.getValue());
+		op = ops.get(1);
+		assertEquals("replace", op.getOp());
+		assertEquals("/1/description", op.getPath());
+		assertEquals("BBB", op.getValue());
 	}
 
 	@Test
@@ -169,22 +175,23 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(4, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/1/description", test.get("path").textValue());
-//		assertEquals("B", test.get("value").textValue());
-//		JsonNode replace = patch.get(1);
-//		assertEquals("replace", replace.get("op").textValue());
-//		assertEquals("/1/description", replace.get("path").textValue());
-//		assertEquals("BBB", replace.get("value").textValue());
-//		test = patch.get(2);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/1/complete", test.get("path").textValue());
-//		assertFalse(test.get("value").booleanValue());
-//		replace = patch.get(3);
-//		assertEquals("replace", replace.get("op").textValue());
-//		assertEquals("/1/complete", replace.get("path").textValue());
-//		assertTrue(replace.get("value").booleanValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/1/description", op.getPath());
+		assertEquals("B", op.getValue());
+		op = ops.get(1);
+		assertEquals("replace", op.getOp());
+		assertEquals("/1/description", op.getPath());
+		assertEquals("BBB", op.getValue());
+		op = ops.get(2);
+		assertEquals("test", op.getOp());
+		assertEquals("/1/complete", op.getPath());
+		assertEquals(false, op.getValue());
+		op = ops.get(3);
+		assertEquals("replace", op.getOp());
+		assertEquals("/1/complete", op.getPath());
+		assertEquals(true, op.getValue());
 	}
 
 	@Test
@@ -196,22 +203,23 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(4, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/0/description", test.get("path").textValue());
-//		assertEquals("A", test.get("value").textValue());
-//		JsonNode replace = patch.get(1);
-//		assertEquals("replace", replace.get("op").textValue());
-//		assertEquals("/0/description", replace.get("path").textValue());
-//		assertEquals("AAA", replace.get("value").textValue());
-//		test = patch.get(2);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/1/complete", test.get("path").textValue());
-//		assertFalse(test.get("value").booleanValue());
-//		replace = patch.get(3);
-//		assertEquals("replace", replace.get("op").textValue());
-//		assertEquals("/1/complete", replace.get("path").textValue());
-//		assertTrue(replace.get("value").booleanValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/0/description", op.getPath());
+		assertEquals("A", op.getValue());
+		op = ops.get(1);
+		assertEquals("replace", op.getOp());
+		assertEquals("/0/description", op.getPath());
+		assertEquals("AAA", op.getValue());
+		op = ops.get(2);
+		assertEquals("test", op.getOp());
+		assertEquals("/1/complete", op.getPath());
+		assertEquals(false, op.getValue());
+		op = ops.get(3);
+		assertEquals("replace", op.getOp());
+		assertEquals("/1/complete", op.getPath());
+		assertEquals(true, op.getValue());
 	}
 	
 	@Test
@@ -221,13 +229,14 @@ public class DiffTest {
 		modified.add(0, new Todo(0L, "Z", false));
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(1, diff.size());
-//		JsonNode add = patch.get(0);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/0", add.get("path").textValue());
-//		JsonNode value = add.get("value");
-//		assertEquals(0L, value.get("id").longValue());
-//		assertEquals("Z", value.get("description").textValue());
-//		assertFalse(value.get("complete").booleanValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("add", op.getOp());
+		assertEquals("/0", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(0L, value.getId().longValue());
+		assertEquals("Z", value.getDescription());
+		assertEquals(false, value.isComplete());
 	}
 
 	@Test
@@ -239,20 +248,21 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode add = patch.get(0);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/0", add.get("path").textValue());
-//		JsonNode value = add.get("value");
-//		assertEquals(26L, value.get("id").longValue());
-//		assertEquals("Z", value.get("description").textValue());
-//		assertTrue(value.get("complete").booleanValue());
-//		add = patch.get(1);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/1", add.get("path").textValue());
-//		value = add.get("value");
-//		assertEquals(25L, value.get("id").longValue());
-//		assertEquals("Y", value.get("description").textValue());
-//		assertFalse(value.get("complete").booleanValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("add", op.getOp());
+		assertEquals("/0", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(26L, value.getId().longValue());
+		assertEquals("Z", value.getDescription());
+		assertEquals(true, value.isComplete());
+		op = ops.get(1);
+		assertEquals("add", op.getOp());
+		assertEquals("/1", op.getPath());
+		value = (Todo) op.getValue();
+		assertEquals(25L, value.getId().longValue());
+		assertEquals("Y", value.getDescription());
+		assertEquals(false, value.isComplete());
 	}
 
 	@Test
@@ -262,14 +272,15 @@ public class DiffTest {
 		modified.add(2, new Todo(0L, "Z", false));
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(1, diff.size());
-//		JsonNode add = patch.get(0);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/2", add.get("path").textValue());		
-//		JsonNode value = add.get("value");
-//		assertEquals(0L, value.get("id").longValue());
-//		assertEquals("Z", value.get("description").textValue());
-//		assertFalse(value.get("complete").booleanValue());
 
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("add", op.getOp());
+		assertEquals("/2", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(0L, value.getId().longValue());
+		assertEquals("Z", value.getDescription());
+		assertEquals(false, value.isComplete());
 	}
 	
 	@Test
@@ -281,20 +292,21 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode add = patch.get(0);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/2", add.get("path").textValue());
-//		JsonNode value = add.get("value");
-//		assertEquals(26L, value.get("id").longValue());
-//		assertEquals("Z", value.get("description").textValue());
-//		assertTrue(value.get("complete").booleanValue());
-//		add = patch.get(1);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/3", add.get("path").textValue());
-//		value = add.get("value");
-//		assertEquals(25L, value.get("id").longValue());
-//		assertEquals("Y", value.get("description").textValue());
-//		assertFalse(value.get("complete").booleanValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("add", op.getOp());
+		assertEquals("/2", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(26L, value.getId().longValue());
+		assertEquals("Z", value.getDescription());
+		assertEquals(true, value.isComplete());
+		op = ops.get(1);
+		assertEquals("add", op.getOp());
+		assertEquals("/3", op.getPath());
+		value = (Todo) op.getValue();
+		assertEquals(25L, value.getId().longValue());
+		assertEquals("Y", value.getDescription());
+		assertEquals(false, value.isComplete());
 	}
 	
 	public void insertItemAtEndOfList() throws Exception {
@@ -303,10 +315,15 @@ public class DiffTest {
 		modified.add(3, new Todo(0L, "Z", false));
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(1, diff.size());
-//		JsonNode add = patch.get(0);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/3", add.get("path").textValue());
-//		assertEquals("{\"id\":0,\"description\":\"Z\",\"complete\":false}", add.get("value").textValue());
+		
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("add", op.getOp());
+		assertEquals("/3", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(0L, value.getId().longValue());
+		assertEquals("Z", value.getDescription());
+		assertEquals(false, value.isComplete());
 	}
 	
 	@Test
@@ -318,20 +335,21 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode add = patch.get(0);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/3", add.get("path").textValue());
-//		JsonNode value = add.get("value");
-//		assertEquals(25L, value.get("id").longValue());
-//		assertEquals("Y", value.get("description").textValue());
-//		assertFalse(value.get("complete").booleanValue());
-//		add = patch.get(1);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/4", add.get("path").textValue());
-//		value = add.get("value");
-//		assertEquals(26L, value.get("id").longValue());
-//		assertEquals("Z", value.get("description").textValue());
-//		assertTrue(value.get("complete").booleanValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("add", op.getOp());
+		assertEquals("/3", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(25L, value.getId().longValue());
+		assertEquals("Y", value.getDescription());
+		assertEquals(false, value.isComplete());
+		op = ops.get(1);
+		assertEquals("add", op.getOp());
+		assertEquals("/4", op.getPath());
+		value = (Todo) op.getValue();
+		assertEquals(26L, value.getId().longValue());
+		assertEquals("Z", value.getDescription());
+		assertEquals(true, value.isComplete());
 	}
 
 	@Test
@@ -343,20 +361,21 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode add = patch.get(0);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/0", add.get("path").textValue());
-//		JsonNode value = add.get("value");
-//		assertEquals(25L, value.get("id").longValue());
-//		assertEquals("Y", value.get("description").textValue());
-//		assertFalse(value.get("complete").booleanValue());
-//		add = patch.get(1);
-//		assertEquals("add", add.get("op").textValue());
-//		assertEquals("/4", add.get("path").textValue());
-//		value = add.get("value");
-//		assertEquals(26L, value.get("id").longValue());
-//		assertEquals("Z", value.get("description").textValue());
-//		assertTrue(value.get("complete").booleanValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("add", op.getOp());
+		assertEquals("/0", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(25L, value.getId().longValue());
+		assertEquals("Y", value.getDescription());
+		assertEquals(false, value.isComplete());
+		op = ops.get(1);
+		assertEquals("add", op.getOp());
+		assertEquals("/4", op.getPath());
+		value = (Todo) op.getValue();
+		assertEquals(26L, value.getId().longValue());
+		assertEquals("Z", value.getDescription());
+		assertEquals(true, value.isComplete());
 	}
 	
 	@Test
@@ -367,16 +386,18 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/0", test.get("path").textValue());
-//		JsonNode value = test.get("value");
-//		assertEquals(1L, value.get("id").longValue());
-//		assertEquals("A", value.get("description").textValue());
-//		assertFalse(value.get("complete").booleanValue());
-//		JsonNode remove = patch.get(1);
-//		assertEquals("remove", remove.get("op").textValue());
-//		assertEquals("/0", remove.get("path").textValue());
+
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/0", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(1L, value.getId().longValue());
+		assertEquals("A", value.getDescription());
+		assertEquals(false, value.isComplete());
+		op = ops.get(1);
+		assertEquals("remove", op.getOp());
+		assertEquals("/0", op.getPath());
 	}
 
 	@Test
@@ -387,16 +408,17 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/1", test.get("path").textValue());
-//		JsonNode value = test.get("value");
-//		assertEquals(2L, value.get("id").longValue());
-//		assertEquals("B", value.get("description").textValue());
-//		assertFalse(value.get("complete").booleanValue());
-//		JsonNode remove = patch.get(1);
-//		assertEquals("remove", remove.get("op").textValue());
-//		assertEquals("/1", remove.get("path").textValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/1", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(2L, value.getId().longValue());
+		assertEquals("B", value.getDescription());
+		assertEquals(false, value.isComplete());
+		op = ops.get(1);
+		assertEquals("remove", op.getOp());
+		assertEquals("/1", op.getPath());
 	}
 	
 	@Test
@@ -407,16 +429,17 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(2, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/2", test.get("path").textValue());
-//		JsonNode value = test.get("value");
-//		assertEquals(3L, value.get("id").longValue());
-//		assertEquals("C", value.get("description").textValue());
-//		assertFalse(value.get("complete").booleanValue());
-//		JsonNode remove = patch.get(1);
-//		assertEquals("remove", remove.get("op").textValue());
-//		assertEquals("/2", remove.get("path").textValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/2", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(3L, value.getId().longValue());
+		assertEquals("C", value.getDescription());
+		assertEquals(false, value.isComplete());
+		op = ops.get(1);
+		assertEquals("remove", op.getOp());
+		assertEquals("/2", op.getPath());
 	}
 	
 	@Test
@@ -429,36 +452,37 @@ public class DiffTest {
 		
 		Patch diff = new Diff().diff(original, modified);
 		assertEquals(6, diff.size());
-//		JsonNode test = patch.get(0);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/0", test.get("path").textValue());
-//		JsonNode valueNode = test.get("value");
-//		assertEquals(1L, valueNode.get("id").longValue());
-//		assertEquals("A", valueNode.get("description").textValue());
-//		assertFalse(valueNode.get("complete").booleanValue());
-//		JsonNode remove = patch.get(1);
-//		assertEquals("remove", remove.get("op").textValue());
-//		assertEquals("/0", remove.get("path").textValue());
-//		test = patch.get(2);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/0", test.get("path").textValue());
-//		valueNode = test.get("value");
-//		assertEquals(2L, valueNode.get("id").longValue());
-//		assertEquals("B", valueNode.get("description").textValue());
-//		assertFalse(valueNode.get("complete").booleanValue());
-//		remove = patch.get(3);
-//		assertEquals("remove", remove.get("op").textValue());
-//		assertEquals("/0", remove.get("path").textValue());
-//		test = patch.get(4);
-//		assertEquals("test", test.get("op").textValue());
-//		assertEquals("/0", test.get("path").textValue());
-//		valueNode = test.get("value");
-//		assertEquals(3L, valueNode.get("id").longValue());
-//		assertEquals("C", valueNode.get("description").textValue());
-//		assertFalse(valueNode.get("complete").booleanValue());
-//		remove = patch.get(5);
-//		assertEquals("remove", remove.get("op").textValue());
-//		assertEquals("/0", remove.get("path").textValue());
+		List<PatchOperation> ops = diff.getOperations();
+		PatchOperation op = ops.get(0);
+		assertEquals("test", op.getOp());
+		assertEquals("/0", op.getPath());
+		Todo value = (Todo) op.getValue();
+		assertEquals(1L, value.getId().longValue());
+		assertEquals("A", value.getDescription());
+		assertEquals(false, value.isComplete());
+		op = ops.get(1);
+		assertEquals("remove", op.getOp());
+		assertEquals("/0", op.getPath());
+		op = ops.get(2);
+		assertEquals("test", op.getOp());
+		assertEquals("/0", op.getPath());
+		value = (Todo) op.getValue();
+		assertEquals(2L, value.getId().longValue());
+		assertEquals("B", value.getDescription());
+		assertEquals(false, value.isComplete());
+		op = ops.get(3);
+		assertEquals("remove", op.getOp());
+		assertEquals("/0", op.getPath());
+		op = ops.get(4);
+		assertEquals("test", op.getOp());
+		assertEquals("/0", op.getPath());
+		value = (Todo) op.getValue();
+		assertEquals(3L, value.getId().longValue());
+		assertEquals("C", value.getDescription());
+		assertEquals(false, value.isComplete());
+		op = ops.get(5);
+		assertEquals("remove", op.getOp());
+		assertEquals("/0", op.getPath());
 	}
 
 	private List<Todo> buildTodoList() {

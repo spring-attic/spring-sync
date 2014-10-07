@@ -58,8 +58,8 @@ public class DiffSyncController {
 		
 		List<?> items = (List<?>) persistenceCallback.findAll();
 		
-		DiffSync<Object> sync = new DiffSync(patch, shadowStore, persistenceCallback);
-		Patch returnPatch = sync.apply(items);
+		DiffSync<Object> sync = new DiffSync(shadowStore, persistenceCallback);
+		Patch returnPatch = sync.apply(patch, items);
 
 		// return returnPatch
 		HttpHeaders headers = new HttpHeaders();

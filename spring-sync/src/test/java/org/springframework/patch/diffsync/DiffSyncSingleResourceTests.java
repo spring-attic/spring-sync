@@ -70,12 +70,12 @@ public class DiffSyncSingleResourceTests {
 	
 	private Patch applyPatch(Long id, String patchResourceName) throws IOException, JsonProcessingException {
 		Todo todo = todoRepository().findOne(id);
-		Patch jsonPatch = readJsonPatchFromResource(patchResourceName);
+		Patch patch = readJsonPatchFromResource(patchResourceName);
 
 		JpaPersistenceCallback<Todo> callback = new JpaPersistenceCallback<Todo>(todoRepository(), Todo.class);
 
-		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), callback);
-		return sync.apply(todo);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), callback);
+		return sync.apply(patch, todo);
 	}
 	
 	private Patch readJsonPatchFromResource(String resource) throws IOException, JsonProcessingException { 

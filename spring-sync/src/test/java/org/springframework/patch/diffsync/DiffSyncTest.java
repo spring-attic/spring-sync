@@ -229,13 +229,13 @@ public class DiffSyncTest {
 	
 	private Patch applyPatch(String patchResourceName) throws IOException, JsonProcessingException {
 		Iterable<Todo> allTodos = todoRepository().findAll();
-		Patch jsonPatch = readJsonPatchFromResource(patchResourceName);
+		Patch patch = readJsonPatchFromResource(patchResourceName);
 		
 		
 		JpaPersistenceCallback<Todo> callback = new JpaPersistenceCallback<Todo>(todoRepository(), Todo.class);
 		
-		DiffSync<Todo> sync = new DiffSync<Todo>(jsonPatch, new MapBasedShadowStore(), callback);
-		return sync.apply((List<Todo>) allTodos);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), callback);
+		return sync.apply(patch, (List<Todo>) allTodos);
 	}
 	
 	private Patch readJsonPatchFromResource(String resource) throws IOException, JsonProcessingException { 

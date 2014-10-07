@@ -23,8 +23,6 @@ import org.apache.commons.lang.SerializationUtils;
 import org.springframework.patch.Diff;
 import org.springframework.patch.Patch;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 /**
  * Differential Synchronization routine.
  * 
@@ -33,8 +31,6 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @param <T> The entity type to perform differential synchronization against.
  */
 public class DiffSync<T> {
-
-	private Patch patch;
 	
 	private ShadowStore shadowStore;
 
@@ -44,13 +40,11 @@ public class DiffSync<T> {
 
 	/**
 	 * Constructs the Differential Synchronization routine instance.
-	 * @param patch a JSON Patch to perform
 	 * @param shadowStore the shadow store
 	 * @param persistenceCallback an implementation of {@link PersistenceCallback} used to save and delete items while performing the patch
 	 */
-	public DiffSync(Patch patch, ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback) {
+	public DiffSync(ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback) {
 		this.persistenceCallback = persistenceCallback;
-		this.patch = patch;
 		this.shadowStore = shadowStore;
 	}
 	
@@ -67,12 +61,12 @@ public class DiffSync<T> {
 	/**
 	 * Applies the patch to a single, non-list object.
 	 * @param target the object to apply a patch to.
-	 * @return a {@link JsonNode} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
+	 * @return a {@link Patch} to apply to the source of the target object (e.g., to send back to the client).
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Patch apply(T target) {
+	public Patch apply(Patch patch, T target) {
 		if (target instanceof List) {
-			return apply((List) target);
+			return apply(patch, (List) target);
 		}
 		
 		// Clone the target into a working copy so that we can diff it later.
@@ -103,16 +97,16 @@ public class DiffSync<T> {
 		shadowStore.putShadow(shadowStoreKey, shadow);
 		
 		// Return the return patch.
-		return returnPatch; // TODO: Return a Patch instead of a JsonNode
+		return returnPatch;
 	}
 	
 	/**
 	 * Applies the patch to a list.
 	 * @param target the list to apply a patch to.
-	 * @return a {@link JsonNode} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
+	 * @return a {@link Patch} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
 	 */
 	@SuppressWarnings("unchecked")
-	public Patch apply(List<T> target) {
+	public Patch apply(Patch patch, List<T> target) {
 		// Clone the target into a working copy so that we can diff it later.
 		// Must be a deep clone or else the individual items in the list will still be the exact same instances
 		// and could be changed in both the target and the working copy.
@@ -163,7 +157,7 @@ public class DiffSync<T> {
 		shadowStore.putShadow(shadowStoreKey, shadow);
 		
 		// Return the patch
-		return returnPatch;  // TODO : Return a Patch instead of a JsonNode
+		return returnPatch;
 	}
 	
 	
