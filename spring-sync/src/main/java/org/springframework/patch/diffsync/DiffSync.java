@@ -88,10 +88,10 @@ public class DiffSync<T> {
 		}
 		
 		T shadow = getShadow(target);
-		shadow = (T) patch.apply(shadow);
+		shadow = patch.apply(shadow);
 		putShadow(shadow);
 
-		return (T) patch.apply(deepClone(target));
+		return patch.apply(deepClone(target));
 	}
 	
 	/**
@@ -108,7 +108,7 @@ public class DiffSync<T> {
 		}
 		
 		List<T> shadow = getShadow(target);
-		shadow = (List<T>) patch.apply(shadow);
+		shadow = patch.apply(shadow);
 		putShadow(shadow);
 
 		return patch.apply(deepCloneList(target));
