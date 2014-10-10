@@ -24,7 +24,34 @@ import org.springframework.patch.Diff;
 import org.springframework.patch.Patch;
 
 /**
- * Differential Synchronization routine.
+ * <p>
+ * Implements essential steps of the Differential Synchronization routine as described in Neil Fraser's paper at https://neil.fraser.name/writing/sync/eng047-fraser.pdf.
+ * </p>
+ * 
+ * <p>
+ * The Differential Synchronization routine can be summarized as follows (with two nodes, A and B):
+ * </p>
+ * 
+ * <ol>
+ *   <li>Node A compares a resource with its local shadow of that resource to produce a patch describing the differences</li>
+ *   <li>Node A replaces the shadow with the resource.</li>
+ *   <li>Node A sends the difference patch to Node B.</li>
+ *   <li>Node B applies the patch to its copy of the resource as well as its local shadow of the resource.</li>
+ * </ol>
+ * 
+ * <p>
+ * The routine then repeats with Node A and B swapping roles, forming a continuous loop.
+ * </p>
+ * 
+ * <p>
+ * To fully understand the Differential Synchronization routine, it's helpful to recognize that a shadow can only be changed by applying a patch or by producing a 
+ * difference patch; a resource may be changed by applying a patch or by operations performed outside of the loop.
+ * </p>
+ * 
+ * <p>
+ * This class implements the handling of an incoming patch separately from the producing of the outgoing difference patch.
+ * It performs no persistence of the patched resources, which is the responsibility of the caller.
+ * </p>
  * 
  * @author Craig Walls
  *
@@ -34,137 +61,120 @@ public class DiffSync<T> {
 	
 	private ShadowStore shadowStore;
 
-	private Equivalency equivalency = new IdPropertyEquivalency();
-
-	private PersistenceCallback<T> persistenceCallback;
-
+	private Class<T> entityType;
+	
 	/**
 	 * Constructs the Differential Synchronization routine instance.
 	 * @param shadowStore the shadow store
-	 * @param persistenceCallback an implementation of {@link PersistenceCallback} used to save and delete items while performing the patch
+	 * @param entityType the type of entity this DiffSync works with
 	 */
-	public DiffSync(ShadowStore shadowStore, PersistenceCallback<T> persistenceCallback) {
-		this.persistenceCallback = persistenceCallback;
+	public DiffSync(ShadowStore shadowStore, Class<T> entityType) {
 		this.shadowStore = shadowStore;
+		this.entityType = entityType;
 	}
 	
-	/**
-	 * Sets the equivalency check strategy.
-	 * Used to compare two objects to determine if they represent the same entity, even if the values of their properties differ.
-	 * Defaults to {@link IdPropertyEquivalency} which compares the id property of each object.
-	 * @param equivalency the equivalency strategy.
-	 */
-	public void setEquivalency(Equivalency equivalency) {
-		this.equivalency = equivalency;
-	}
 	
 	/**
-	 * Applies the patch to a single, non-list object.
-	 * @param target the object to apply a patch to.
-	 * @return a {@link Patch} to apply to the source of the target object (e.g., to send back to the client).
+	 * Applies a patch to a target object and the target object's shadow, per the Differential Synchronization algorithm.
+	 * The target object will remain unchanged and a patched copy will be returned.
+	 * 
+	 * @param patch The patch to be applied.
+	 * @param target An object to apply a patch to. Will remain unchanged.
+	 * @return a patched copy of the target.
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Patch apply(Patch patch, T target) {
-		if (target instanceof List) {
-			return apply(patch, (List) target);
+	public T apply(Patch patch, T target) {
+		if (patch.size() == 0) {
+			return target;
 		}
 		
-		// Clone the target into a working copy so that we can diff it later.
-		// Must be a deep clone or else items in any list properties will be the exact same instances
-		// and could be changed in both the target and the working copy.
-		T workCopy = deepClone(target);
+		T shadow = getShadow(target);
+		shadow = (T) patch.apply(shadow);
+		putShadow(shadow);
+
+		return (T) patch.apply(deepClone(target));
+	}
+	
+	/**
+	 * Applies a patch to a target list and the target list's shadow, per the Differential Synchronization algorithm.
+	 * The target object will remain unchanged and a patched copy will be returned.
+	 * 
+	 * @param patch The patch to be applied.
+	 * @param target A list to apply a patch to. Will remain unchanged.
+	 * @return a patched copy of the target.
+	 */
+	public List<T> apply(Patch patch, List<T> target) {
+		if (patch.size() == 0) {
+			return target;
+		}
 		
-		// Look up the shadow from the shadow store; clone the target if the shadow doesn't exist.
+		List<T> shadow = getShadow(target);
+		shadow = (List<T>) patch.apply(shadow);
+		putShadow(shadow);
+
+		return patch.apply(deepCloneList(target));
+	}
+	
+	/**
+	 * Compares a target object with its shadow, producing a patch describing the difference.
+	 * Upon completion, the shadow will be replaced with the target, per the Differential Synchronization algorithm.
+	 * @param target The target object to produce a difference patch for.
+	 * @return a {@link Patch} describing the differences between the target and its shadow.
+	 */
+	public Patch diff(T target) {
+		T shadow = getShadow(target);
+		Patch diff = new Diff().diff(shadow, target);
+		putShadow(target);
+		return diff;
+	}
+	
+	/**
+	 * Compares a target list with its shadow, producing a patch describing the difference.
+	 * Upon completion, the shadow will be replaced with the target, per the Differential Synchronization algorithm.
+	 * @param target The target list to produce a difference patch for.
+	 * @return a {@link Patch} describing the differences between the target and its shadow.
+	 */
+	public Patch diff(List<T> target) {
+		List<T> shadow = getShadow(target);
+		Patch diff = new Diff().diff(shadow, target);
+		putShadow(target);
+		return diff;
+	}
+	
+	// private helper methods
+	
+	@SuppressWarnings("unchecked")
+	private T getShadow(T target) {
 		String shadowStoreKey = getShadowStoreKey(target);
 		T shadow = (T) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
 			shadow = deepClone(target);
 		}
-		
-		// Apply patch to both shadow and working copy.
-		if (patch.size() > 0) {
-			shadow = (T) patch.apply(shadow);
-			workCopy = (T) patch.apply(workCopy);
-			
-			// Save the working copy.
-			persistenceCallback.persistChange(workCopy);
-		}
-		
-		// Calculate the return patch by diff'ing the shadow and working copy.
-		Patch returnPatch = new Diff().diff(shadow, workCopy);
-		
-		// Store the shadow.
-		shadowStore.putShadow(shadowStoreKey, shadow);
-		
-		// Return the return patch.
-		return returnPatch;
+		return shadow;
 	}
 	
-	/**
-	 * Applies the patch to a list.
-	 * @param target the list to apply a patch to.
-	 * @return a {@link Patch} containing a JSON Patch to apply to the source of the target object (e.g., to send back to the client).
-	 */
+	private void putShadow(T shadow) {
+		String shadowStoreKey = getShadowStoreKey(shadow);
+		shadowStore.putShadow(shadowStoreKey, shadow);
+	}
+
 	@SuppressWarnings("unchecked")
-	public Patch apply(Patch patch, List<T> target) {
-		// Clone the target into a working copy so that we can diff it later.
-		// Must be a deep clone or else the individual items in the list will still be the exact same instances
-		// and could be changed in both the target and the working copy.
-		List<T> workCopy = deepCloneList(target);
-		
-		// Look up the shadow from the shadow store; clone the target if the shadow doesn't exist.
+	private List<T> getShadow(List<T> target) {
 		String shadowStoreKey = getShadowStoreKey(target);
 		List<T> shadow = (List<T>) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
 			shadow = deepCloneList(target);
 		}
-
-		if (patch.size() > 0) {
-			// Apply patch to both shadow and working copy.
-			shadow = (List<T>) patch.apply(shadow);
-			workCopy = (List<T>) patch.apply(workCopy);
-
-			// Determine which items changed.
-			// Make a shallow copy of the working copy, remove items that are in the target.
-			// What's left are the items that changed and need to be saved.
-			List<T> itemsToSave = new ArrayList<T>(workCopy);
-			itemsToSave.removeAll(target);
-
-			// Determine which items should be deleted.
-			// Make a shallow copy of the target, remove items that are equivalent to items in the working copy.
-			// Equivalent is not the same as equals. It means "this is the same resource, even if it has changed".
-			// It usually means "are the id properties equals".
-			List<T> itemsToDelete = new ArrayList<T>(target);
-			for (T candidate : target) {
-				for (T item : workCopy) {
-					if (equivalency.isEquivalent(candidate, item)) {
-						itemsToDelete.remove(candidate);
-						break;
-					}
-				}
-			}
-			
-			persistenceCallback.persistChanges(itemsToSave, itemsToDelete);
-		}
-		
-		// Calculate the return patch by diff'ing the shadow and working copy
-		Patch returnPatch = new Diff().diff(shadow, workCopy);
-		
-		// Apply the return patch to the shadow to sync it up with the working copy.
-		shadow = (List<T>) returnPatch.apply(shadow);
-		
-		// Store the shadow
-		shadowStore.putShadow(shadowStoreKey, shadow);
-		
-		// Return the patch
-		return returnPatch;
+		return shadow;
 	}
-	
-	
-	// private helper methods
+
+	private void putShadow(List<T> shadow) {
+		String shadowStoreKey = getShadowStoreKey(shadow);
+		shadowStore.putShadow(shadowStoreKey, shadow);
+	}
+
 	
 	private String getShadowStoreKey(Object o) {
-		String resourceName = persistenceCallback.getEntityType().getSimpleName();
+		String resourceName = entityType.getSimpleName();
 		if (o instanceof List) {
 			return "shadow/list/" + resourceName;
 		} else {

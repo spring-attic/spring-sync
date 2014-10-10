@@ -15,6 +15,7 @@
  */
 package org.springframework.patch.diffsync.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.patch.Patch;
 import org.springframework.patch.PatchException;
 import org.springframework.patch.diffsync.DiffSync;
+import org.springframework.patch.diffsync.Equivalency;
+import org.springframework.patch.diffsync.IdPropertyEquivalency;
 import org.springframework.patch.diffsync.PersistenceCallback;
 import org.springframework.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.patch.diffsync.ShadowStore;
@@ -40,6 +43,8 @@ public class DiffSyncController {
 	private ShadowStore shadowStore;
 
 	private PersistenceCallbackRegistry callbackRegistry;
+	
+	private Equivalency equivalency = new IdPropertyEquivalency();
 
 	@Autowired
 	public DiffSyncController(PersistenceCallbackRegistry callbackRegistry, ShadowStore shadowStore) {
@@ -58,8 +63,7 @@ public class DiffSyncController {
 		
 		List<?> items = (List<?>) persistenceCallback.findAll();
 		
-		DiffSync<Object> sync = new DiffSync(shadowStore, persistenceCallback);
-		Patch returnPatch = sync.apply(patch, items);
+		Patch returnPatch = applyAndDiff(patch, (List) items, persistenceCallback);
 
 		// return returnPatch
 		HttpHeaders headers = new HttpHeaders();
@@ -69,4 +73,42 @@ public class DiffSyncController {
 		return responseEntity;
 	}
 
+	
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" }) // TODO : This is unused now...can use it later when we handle single resource patches in the controller
+	private <T> Patch applyAndDiff(Patch patch, T target, PersistenceCallback<T> persistenceCallback) {
+		if (target instanceof List) {
+			return applyAndDiff(patch, (List) target, persistenceCallback);
+		}
+		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
+
+		T patched = sync.apply(patch, target);
+		persistenceCallback.persistChange(patched);
+		return sync.diff(patched);
+	}
+	
+	private <T> Patch applyAndDiff(Patch patch, List<T> target, PersistenceCallback<T> persistenceCallback) {
+		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
+		
+		List<T> patched = sync.apply(patch, target);
+
+		List<T> itemsToSave = new ArrayList<T>(patched);
+		itemsToSave.removeAll(target);
+
+		// Determine which items should be deleted.
+		// Make a shallow copy of the target, remove items that are equivalent to items in the working copy.
+		// Equivalent is not the same as equals. It means "this is the same resource, even if it has changed".
+		// It usually means "are the id properties equals".
+		List<T> itemsToDelete = new ArrayList<T>(target);
+		for (T candidate : target) {
+			for (T item : patched) {
+				if (equivalency.isEquivalent(candidate, item)) {
+					itemsToDelete.remove(candidate);
+					break;
+				}
+			}
+		}
+		persistenceCallback.persistChanges(itemsToSave, itemsToDelete);
+		
+		return sync.diff(patched);
+	}
 }

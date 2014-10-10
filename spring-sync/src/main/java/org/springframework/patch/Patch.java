@@ -47,10 +47,10 @@ public class Patch {
 	 * @return an object graph modified by the patch.
 	 * @throws PatchException if there are any errors while applying the patch.
 	 */
-	public Object apply(Object in) throws PatchException {
+	public <T> T apply(T in) throws PatchException {
 		// TODO: Make defensive copy of in before performing operations so that
 		//       if any op fails, the original left untouched
-		Object work = in; // TODO: This is not really a defensive copy; just a placeholder
+		T work = in; // TODO: This is not really a defensive copy; just a placeholder
 		
 		for (PatchOperation operation : operations) {
 			operation.perform(work);

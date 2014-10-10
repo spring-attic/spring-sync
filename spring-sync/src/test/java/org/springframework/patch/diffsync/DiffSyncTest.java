@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
@@ -28,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.patch.Patch;
+import org.springframework.patch.PatchException;
 import org.springframework.patch.Todo;
 import org.springframework.patch.TodoRepository;
 import org.springframework.patch.json.JsonPatchMaker;
@@ -52,174 +54,316 @@ public class DiffSyncTest {
 	public void cleanup() {
 		repository.deleteAll();
 	}
+
+	//
+	// Apply patches - lists
+	//
+
+	@Test
+	public void patchList_emptyPatch() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-empty");
+
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
+		assertEquals(patched, getTodoList());
+		// original remains unchanged
+		assertEquals(todos, getTodoList());
+	}
 	
 	@Test
-	public void noChangesFromEitherSide() throws Exception {
-		Patch returnPatch = applyPatch("patch-empty");
-		assertEquals(0, returnPatch.size());
+	public void patchList_addNewItem() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-add-new-item");
+
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
+
+		// original should remain unchanged
+		assertEquals(todos, getTodoList());
 		
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(3, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("B", all.get(1).getDescription());
-		assertFalse(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
+		assertNotEquals(patched, todos);
+		assertEquals(4, patched.size());
+		assertEquals(todos.get(0), patched.get(0));
+		assertEquals(todos.get(1), patched.get(1));
+		assertEquals(todos.get(2), patched.get(2));
+		assertEquals(new Todo(null, "D", false), patched.get(3));
 	}
 
 	@Test
-	public void patchSendsSingleStatusChange() throws Exception {
-		Patch returnPatch = applyPatch("patch-change-single-status");
-		assertEquals(0, returnPatch.size());
+	public void patchList_changeSingleEntityStatusAndDescription() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-change-single-status-and-desc");
 
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(3, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("B", all.get(1).getDescription());
-		assertTrue(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
+
+		// original should remain unchanged
+		assertEquals(todos, getTodoList());
+		
+		assertNotEquals(patched, todos);
+		assertEquals(3, patched.size());
+		assertEquals(todos.get(0), patched.get(0));
+		assertEquals(new Todo(2L, "BBB", true), patched.get(1));
+		assertEquals(todos.get(2), patched.get(2));
 	}
 
 	@Test
-	public void patchSendsAStatusChangeAndADescriptionChangeForSameItem() throws Exception {
-		Patch returnPatch = applyPatch("patch-change-single-status-and-desc");
-		assertEquals(0, returnPatch.size());
+	public void patchList_changeSingleEntityStatus() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-change-single-status");
 
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(3, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("BBB", all.get(1).getDescription());
-		assertTrue(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
-	}
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
 
-	@Test
-	public void patchSendsAStatusChangeAndADescriptionChangeForDifferentItems() throws Exception {
-		Patch returnPatch = applyPatch("patch-change-two-status-and-desc");
-		assertEquals(0, returnPatch.size());
-
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(3, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("AAA", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("B", all.get(1).getDescription());
-		assertTrue(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
-	}
-
-	@Test
-	public void patchAddsAnItem() throws Exception {
-		Patch returnPatch = applyPatch("patch-add-new-item");
-
-//		Patch patchArray = returnPatch;
-		assertEquals(2, returnPatch.size());
-//		JsonNode testNode = patchArray.get(0);
-//		assertEquals("test", testNode.get("op").textValue());
-//		assertEquals("/3/id", testNode.get("path").textValue());
-//		JsonNode addNode = patchArray.get(1);
-//		assertEquals("add", addNode.get("op").textValue());
-//		assertEquals("/3/id", addNode.get("path").textValue());
-//		assertEquals(4L, addNode.get("value").longValue());
-
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(4, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("B", all.get(1).getDescription());
-		assertFalse(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
-		assertEquals(4L, all.get(3).getId().longValue());
-		assertEquals("D", all.get(3).getDescription());
-		assertFalse(all.get(3).isComplete());
+		// original should remain unchanged
+		assertEquals(todos, getTodoList());
+		
+		assertNotEquals(patched, todos);
+		assertEquals(3, patched.size());
+		assertEquals(todos.get(0), patched.get(0));
+		assertEquals(new Todo(2L, "B", true), patched.get(1));
+		assertEquals(todos.get(2), patched.get(2));
 	}
 	
 	@Test
-	public void patchRemovesAnItem() throws Exception {
-		Patch returnPatch = applyPatch("patch-remove-item");
-		assertEquals(0, returnPatch.size());
+	public void patchList_changeStatusAndDeleteTwoItems() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-change-status-and-delete-two-items");
 
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(2, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(3L, all.get(1).getId().longValue());
-		assertEquals("C", all.get(1).getDescription());
-		assertFalse(all.get(1).isComplete());
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
+
+		// original should remain unchanged
+		assertEquals(todos, getTodoList());
+		
+		assertNotEquals(patched, todos);
+		assertEquals(1, patched.size());
+		assertEquals(new Todo(1L, "A", true), patched.get(0));
 	}
 
 	@Test
-	public void patchRemovesTwoItems() throws Exception {
-		Patch returnPatch = applyPatch("patch-remove-two-items");
-		assertEquals(0, returnPatch.size());
+	public void patchList_changeTwoStatusAndDescription() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-change-two-status-and-desc");
 
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(1, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-	}
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
 
-
-	@Test
-	public void patchUpdatesStatusOnOneItemAndRemovesTwoOtherItems() throws Exception {
-		Patch returnPatch = applyPatch("patch-change-status-and-delete-two-items");
-		assertEquals(0, returnPatch.size());
-
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(1, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertTrue(all.get(0).isComplete());
+		// original should remain unchanged
+		assertEquals(todos, getTodoList());
+		
+		assertNotEquals(patched, todos);
+		assertEquals(3, patched.size());
+		assertEquals(new Todo(1L, "AAA", false), patched.get(0));
+		assertEquals(new Todo(2L, "B", true), patched.get(1));
+		assertEquals(new Todo(3L, "C", false), patched.get(2));
 	}
 
 	@Test
-	public void patchRemovesTwoOtherItemsAndUpdatesStatusOnAnother() throws Exception {
-		Patch returnPatch = applyPatch("patch-delete-twoitems-and-change-status-on-another");
-		assertEquals(0, returnPatch.size());
+	public void patchList_deleteTwoItemsAndChangeStatusOnAnother() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-delete-twoitems-and-change-status-on-another");
 
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(1, all.size());
-		assertEquals(3L, all.get(0).getId().longValue());
-		assertEquals("C", all.get(0).getDescription());
-		assertTrue(all.get(0).isComplete());
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
+
+		// original should remain unchanged
+		assertEquals(todos, getTodoList());
+		
+		assertNotEquals(patched, todos);
+		assertEquals(1, patched.size());
+		assertEquals(new Todo(3L, "C", true), patched.get(0));
 	}
 
 	@Test
-	public void patchChangesItemStatusAndThenRemovesThatSameItem() throws Exception {
-		Patch returnPatch = applyPatch("patch-modify-then-remove-item");
-		assertEquals(0, returnPatch.size());
+	public void patchList_patchFailingOperationFirst() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-failing-operation-first");
 
-		List<Todo> all = (List<Todo>) repository.findAll();
-		assertEquals(2, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(3L, all.get(1).getId().longValue());
-		assertEquals("C", all.get(1).getDescription());
-		assertFalse(all.get(1).isComplete());
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = null;
+		try {
+			patched = sync.apply(patch, todos);
+			fail();
+		} catch (PatchException e) {
+			// original should remain unchanged
+			assertEquals(todos, getTodoList());
+			assertNull(patched);			
+		}		
+	}
+
+	@Test
+	public void patchList_patchFailingOperationInMiddle() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-failing-operation-in-middle");
+
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = null;
+		try {
+			patched = sync.apply(patch, todos);
+			fail();
+		} catch (PatchException e) {
+			// original should remain unchanged
+			assertEquals(todos, getTodoList());
+			assertNull(patched);			
+		}		
+	}
+
+	@Test
+	public void patchList_manySuccessfulOperations() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-many-successful-operations");
+
+		List<Todo> todos = getBigTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
+
+		// original should remain unchanged
+		assertEquals(todos, getBigTodoList());
+		
+		assertNotEquals(patched, todos);
+		assertEquals(6, patched.size());
+		assertEquals(new Todo(1L, "A", true), patched.get(0));
+		assertEquals(new Todo(2L, "B", true), patched.get(1));
+		assertEquals(new Todo(3L, "C", false), patched.get(2));
+		assertEquals(new Todo(4L, "C", false), patched.get(3));
+		assertEquals(new Todo(1L, "A", true), patched.get(4));
+		assertEquals(new Todo(5L, "E", false), patched.get(5));
+	}
+
+	@Test
+	public void patchList_modifyThenRemoveItem() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-modify-then-remove-item");
+
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
+
+		// original should remain unchanged
+		assertEquals(todos, getTodoList());
+		
+		assertNotEquals(patched, todos);
+		assertEquals(2, patched.size());
+		assertEquals(new Todo(1L, "A", false), patched.get(0));
+		assertEquals(new Todo(3L, "C", false), patched.get(1));
+	}
+
+	@Test
+	public void patchList_removeItem() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-remove-item");
+
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
+
+		// original should remain unchanged
+		assertEquals(todos, getTodoList());
+		
+		assertNotEquals(patched, todos);
+		assertEquals(2, patched.size());
+		assertEquals(new Todo(1L, "A", false), patched.get(0));
+		assertEquals(new Todo(3L, "C", false), patched.get(1));
+	}
+	
+	@Test
+	public void patchList_removeTwoItems() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-remove-two-items");
+
+		List<Todo> todos = getTodoList();
+		List<Todo> patched = sync.apply(patch, todos);
+
+		// original should remain unchanged
+		assertEquals(todos, getTodoList());
+		
+		assertNotEquals(patched, todos);
+		assertEquals(1, patched.size());
+		assertEquals(new Todo(1L, "A", false), patched.get(0));
+	}
+	
+	//
+	// Apply patches - single entity
+	//
+
+	@Test
+	public void patchEntity_emptyPatch() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("patch-empty");
+
+		Todo todo = new Todo(1L, "A", false);
+		Todo patched = sync.apply(patch, todo);
+		assertEquals(1L, patched.getId().longValue());
+		assertEquals("A", patched.getDescription());
+		assertFalse(patched.isComplete());
+		// original remains unchanged
+		assertEquals(1L, todo.getId().longValue());
+		assertEquals("A", todo.getDescription());
+		assertFalse(todo.isComplete());
+	}
+
+	@Test
+	public void patchEntity_booleanProperty() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("single-change-status");
+
+		Todo todo = new Todo(1L, "A", false);
+		Todo patched = sync.apply(patch, todo);
+		assertEquals(1L, patched.getId().longValue());
+		assertEquals("A", patched.getDescription());
+		assertTrue(patched.isComplete());
+		// original remains unchanged
+		assertEquals(1L, todo.getId().longValue());
+		assertEquals("A", todo.getDescription());
+		assertFalse(todo.isComplete());
+
+	}
+	
+	@Test
+	public void patchEntity_stringProperty() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("single-change-description");
+
+		Todo todo = new Todo(1L, "A", false);
+		Todo patched = sync.apply(patch, todo);
+		assertEquals(1L, patched.getId().longValue());
+		assertEquals("AAA", patched.getDescription());
+		assertFalse(patched.isComplete());
+		// original remains unchanged
+		assertEquals(1L, todo.getId().longValue());
+		assertEquals("A", todo.getDescription());
+		assertFalse(todo.isComplete());
+	}
+
+	@Test
+	public void patchEntity_numericProperty() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("single-change-id");
+
+		Todo todo = new Todo(1L, "A", false);
+		Todo patched = sync.apply(patch, todo);
+		assertEquals(123L, patched.getId().longValue());
+		assertEquals("A", patched.getDescription());
+		assertFalse(patched.isComplete());
+		// original remains unchanged
+		assertEquals(1L, todo.getId().longValue());
+		assertEquals("A", todo.getDescription());
+		assertFalse(todo.isComplete());
+	}
+	
+	@Test
+	public void patchEntity_stringAndBooleanProperties() throws Exception {
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		Patch patch = readJsonPatchFromResource("single-change-status-and-desc");
+
+		Todo todo = new Todo(1L, "A", false);
+		Todo patched = sync.apply(patch, todo);
+		assertEquals(1L, patched.getId().longValue());
+		assertEquals("BBB", patched.getDescription());
+		assertTrue(patched.isComplete());
+		// original remains unchanged
+		assertEquals(1L, todo.getId().longValue());
+		assertEquals("A", todo.getDescription());
+		assertFalse(todo.isComplete());		
 	}
 
 	
@@ -227,15 +371,27 @@ public class DiffSyncTest {
 	// private helpers
 	//
 	
-	private Patch applyPatch(String patchResourceName) throws IOException, JsonProcessingException {
-		Iterable<Todo> allTodos = todoRepository().findAll();
-		Patch patch = readJsonPatchFromResource(patchResourceName);
+	private List<Todo> getTodoList() {
+		List<Todo> todos = new ArrayList<Todo>();
 		
+		todos.add(new Todo(1L, "A", false));
+		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(3L, "C", false));
 		
-		JpaPersistenceCallback<Todo> callback = new JpaPersistenceCallback<Todo>(todoRepository(), Todo.class);
+		return todos;
+	}
+
+	private List<Todo> getBigTodoList() {
+		List<Todo> todos = new ArrayList<Todo>();
 		
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), callback);
-		return sync.apply(patch, (List<Todo>) allTodos);
+		todos.add(new Todo(1L, "A", true));
+		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(3L, "C", false));
+		todos.add(new Todo(4L, "D", false));
+		todos.add(new Todo(5L, "E", false));
+		todos.add(new Todo(6L, "F", false));
+		
+		return todos;
 	}
 	
 	private Patch readJsonPatchFromResource(String resource) throws IOException, JsonProcessingException { 
@@ -250,10 +406,6 @@ public class DiffSyncTest {
 			builder.append(reader.readLine());
 		}
 		return builder.toString();
-	}
-
-	private TodoRepository todoRepository() {
-		return repository;
 	}
 	
 }

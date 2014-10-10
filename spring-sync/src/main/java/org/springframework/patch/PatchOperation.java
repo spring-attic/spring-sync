@@ -20,6 +20,7 @@ import static org.springframework.patch.PathToSpEL.*;
 import java.util.List;
 
 import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionException;
 
 public abstract class PatchOperation {
 
@@ -96,7 +97,11 @@ public abstract class PatchOperation {
 	}
 
 	public Object getValueFromTarget(Object target) {
-		return spelExpression.getValue(target);
+		try {
+			return spelExpression.getValue(target);
+		} catch (ExpressionException e) {
+			throw new PatchException("Unable to get value from target", e);
+		}
 	}
 
 	protected Object evaluateValueFromTarget(Object targetObject) {

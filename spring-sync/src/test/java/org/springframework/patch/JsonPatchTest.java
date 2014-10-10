@@ -46,7 +46,6 @@ public class JsonPatchTest {
 		Patch patch = readJsonPatch("/org/springframework/patch/patch-many-successful-operations.json");
 		assertEquals(6, patch.size());
 
-		@SuppressWarnings("unchecked")
 		List<Todo> patchedTodos = (List<Todo>) patch.apply(todos);
 		
 		assertEquals(6, todos.size());

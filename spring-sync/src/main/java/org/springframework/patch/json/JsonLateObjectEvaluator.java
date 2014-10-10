@@ -40,7 +40,6 @@ public class JsonLateObjectEvaluator implements LateObjectEvaluator {
 	@Override
 	public Object evaluate(Object target) {
 		try {
-			Expression spelExpression = pathToExpression(path);
 			Expression parentExpression = pathToExpression(pathToParentSpEL(path));
 			Object parent = parentExpression != null ? parentExpression.getValue(target) : null;
 			Integer listIndex = targetListIndex(path);

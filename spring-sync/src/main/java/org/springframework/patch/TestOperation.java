@@ -15,6 +15,9 @@
  */
 package org.springframework.patch;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -41,9 +44,20 @@ public class TestOperation extends PatchOperation {
 	
 	@Override
 	void perform(Object targetObject) {
-		if (!ObjectUtils.nullSafeEquals(evaluateValueFromTarget(targetObject), getValueFromTarget(targetObject))) {
+		Object expected = normalizeIfNumber(evaluateValueFromTarget(targetObject));
+		Object actual = normalizeIfNumber(getValueFromTarget(targetObject));		
+		if (!ObjectUtils.nullSafeEquals(expected, actual)) {
 			throw new PatchException("Test against path '" + path + "' failed.");
 		}
+	}
+	
+	private Object normalizeIfNumber(Object expected) {
+		if (expected instanceof Double || expected instanceof Float) {
+			expected = BigDecimal.valueOf(((Number) expected).doubleValue()); 
+		} else if (expected instanceof Number) {
+			expected = BigInteger.valueOf(((Number) expected).longValue()); 
+		}
+		return expected;
 	}
 	
 }
