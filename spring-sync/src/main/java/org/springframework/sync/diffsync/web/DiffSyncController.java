@@ -19,11 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.sync.Patch;
 import org.springframework.sync.PatchException;
 import org.springframework.sync.diffsync.DiffSync;
@@ -36,12 +31,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller to handle PATCH requests an apply them to resources using {@link DiffSync}.
  * @author Craig Walls
  */
-@Controller
+@RestController
 public class DiffSyncController {
 	
 	private ShadowStore shadowStore;
@@ -59,22 +55,10 @@ public class DiffSyncController {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(
 			value="${spring.diffsync.path:}/{resource}",
-			method=RequestMethod.PATCH, 
-			consumes={"application/json-patch+json"}, 
-			produces={"application/json-patch+json"})
-	public ResponseEntity<Patch> patch(@PathVariable("resource") String resource, @RequestBody Patch patch) throws PatchException {
-		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);
-		
-		List<?> items = (List<?>) persistenceCallback.findAll();
-		
-		Patch returnPatch = applyAndDiff(patch, (List) items, persistenceCallback);
-
-		// return returnPatch
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(new MediaType("application", "json-patch+json"));
-		ResponseEntity<Patch> responseEntity = new ResponseEntity<Patch>(returnPatch, headers, HttpStatus.OK);
-		
-		return responseEntity;
+			method=RequestMethod.PATCH)
+	public Patch patch(@PathVariable("resource") String resource, @RequestBody Patch patch) throws PatchException {
+		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);		
+		return applyAndDiff(patch, (List) persistenceCallback.findAll(), persistenceCallback);
 	}
 
 	

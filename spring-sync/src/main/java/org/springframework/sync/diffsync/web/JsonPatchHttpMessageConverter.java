@@ -59,6 +59,7 @@ public class JsonPatchHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	@Override
 	protected void writeInternal(Patch patch, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+		outputMessage.getHeaders().setContentType(JSON_PATCH);
 		MAPPER.writer().writeValue(outputMessage.getBody(), jsonPatchMaker.toJsonNode(patch));
 	}
 

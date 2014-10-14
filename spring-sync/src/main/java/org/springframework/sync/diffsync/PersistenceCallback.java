@@ -17,9 +17,11 @@ package org.springframework.sync.diffsync;
 
 import java.util.List;
 
+import org.springframework.sync.diffsync.web.DiffSyncController;
+
 /**
  * Callback to handle persistence in the course of applying a patch via Differential Synchronization.
- * Enables DiffSync to be decoupled from any particular persistence mechanism.
+ * Enables {@link DiffSyncController} to be decoupled from any particular persistence mechanism.
  * @author Craig Walls
  *
  * @param <T> The entity type
@@ -45,6 +47,9 @@ public interface PersistenceCallback<T> {
 	 */
 	void persistChanges(List<T> itemsToSave, List<T> itemsToDelete);
 		
+	/**
+	 * @return the type of entity that this callback works with.
+	 */
 	Class<T> getEntityType();
 	
 }
