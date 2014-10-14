@@ -18,6 +18,11 @@ package org.springframework.patch.diffsync;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of {@link ShadowStore} that keeps shadows in an in-memory map.
+ * Not recommended for production applications, as it isn't scalable in terms of the number of clients.
+ * @author Craig Walls
+ */
 public class MapBasedShadowStore implements ShadowStore {
 
 	private Map<String, Object> store = new HashMap<String, Object>();

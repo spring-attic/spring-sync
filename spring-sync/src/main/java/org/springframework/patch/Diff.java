@@ -26,8 +26,20 @@ import difflib.Delta;
 import difflib.Delta.TYPE;
 import difflib.DiffUtils;
 
+/**
+ * Provides support for producing a {@link Patch} from the comparison of two objects.
+ * @author Craig Walls
+ */
 public class Diff {
 
+	/**
+	 * Performs a difference operation between two objects, resulting in a {@link Patch} describing the differences.
+	 * 
+	 * @param original the original, unmodified object.
+	 * @param modified the modified object.
+	 * @return a {@link Patch} describing the differences between the two objects.
+	 * @throws PatchException if an error occurs while performing the difference.
+	 */
 	public Patch diff(Object original, Object modified) throws PatchException {
 		try {
 			List<PatchOperation> operations = new ArrayList<PatchOperation>();
@@ -42,6 +54,8 @@ public class Diff {
 			throw new PatchException("Error performing diff:", e);
 		}
 	}
+	
+	// static helpers
 	
 	private void diffList(List<PatchOperation> operations, String path, List<?> original, List<?> modified) throws IOException, IllegalAccessException {
 	

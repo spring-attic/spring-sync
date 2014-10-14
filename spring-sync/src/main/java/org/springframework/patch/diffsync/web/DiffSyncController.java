@@ -37,6 +37,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+/**
+ * Controller to handle PATCH requests an apply them to resources using {@link DiffSync}.
+ * @author Craig Walls
+ */
 @Controller
 public class DiffSyncController {
 	

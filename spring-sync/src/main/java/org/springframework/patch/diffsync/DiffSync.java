@@ -123,7 +123,7 @@ public class DiffSync<T> {
 	public Patch diff(T target) {
 		T shadow = getShadow(target);
 		Patch diff = new Diff().diff(shadow, target);
-		putShadow(target);
+		putShadow(diff.apply(shadow));
 		return diff;
 	}
 	
@@ -136,7 +136,7 @@ public class DiffSync<T> {
 	public Patch diff(List<T> target) {
 		List<T> shadow = getShadow(target);
 		Patch diff = new Diff().diff(shadow, target);
-		putShadow(target);
+		putShadow(diff.apply(shadow));
 		return diff;
 	}
 	

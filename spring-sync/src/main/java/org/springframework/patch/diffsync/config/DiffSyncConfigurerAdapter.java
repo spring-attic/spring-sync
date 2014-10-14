@@ -15,9 +15,14 @@
  */
 package org.springframework.patch.diffsync.config;
 
+import org.springframework.patch.diffsync.MapBasedShadowStore;
 import org.springframework.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.patch.diffsync.ShadowStore;
 
+/**
+ * Adapter implementation of {@link DiffSyncConfigurer} providing default implementations.
+ * @author Craig Walls
+ */
 public class DiffSyncConfigurerAdapter implements DiffSyncConfigurer {
 
 	@Override
@@ -26,7 +31,7 @@ public class DiffSyncConfigurerAdapter implements DiffSyncConfigurer {
 	
 	@Override
 	public ShadowStore getShadowStore() {
-		return null;
+		return new MapBasedShadowStore();
 	}
 	
 }

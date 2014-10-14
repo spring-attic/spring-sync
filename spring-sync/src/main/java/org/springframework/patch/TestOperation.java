@@ -21,7 +21,7 @@ import java.math.BigInteger;
 import org.springframework.util.ObjectUtils;
 
 /**
- * <p>Test operation.</p>
+ * <p>Operation to test values on a given target.</p>
  * 
  * <p>
  * If the value given matches the value given at the path, the operation completes as a no-op.

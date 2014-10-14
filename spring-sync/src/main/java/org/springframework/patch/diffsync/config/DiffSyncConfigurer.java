@@ -16,13 +16,28 @@ import org.springframework.web.patch.diffsync.ShadowStore;
  */
 package org.springframework.patch.diffsync.config;
 
+import org.springframework.patch.diffsync.MapBasedShadowStore;
+import org.springframework.patch.diffsync.PersistenceCallback;
 import org.springframework.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.patch.diffsync.ShadowStore;
 
+/**
+ * Configurer for DiffSync.
+ * @author Craig Walls
+ */
 public interface DiffSyncConfigurer {
 
+	/**
+	 * Override to add {@link PersistenceCallback}s.
+	 * @param registry
+	 */
 	void addPersistenceCallbacks(PersistenceCallbackRegistry registry);
 	
+	/**
+	 * Override to set the {@link ShadowStore}.
+	 * For convenience, a {@link MapBasedShadowStore} will be the default, but should not be used in production applications. 
+	 * @return a {@link ShadowStore}
+	 */
 	ShadowStore getShadowStore();
 	
 }

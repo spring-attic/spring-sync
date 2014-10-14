@@ -18,10 +18,8 @@ package org.springframework.patch;
 import static org.springframework.patch.PathToSpEL.*;
 
 /**
- * <p>Copy operation.</p>
- * 
  * <p>
- * Copies a value from the given "from" path to the given "path".
+ * Operation to copy a value from the given "from" path to the given "path".
  * Will throw a {@link PatchException} if either path is invalid or if the object at the from path 
  * is not assignable to the given path.
  * </p>

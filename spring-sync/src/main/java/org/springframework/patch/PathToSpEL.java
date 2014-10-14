@@ -20,27 +20,51 @@ import java.util.Arrays;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
+/**
+ * Utilities for converting patch paths to/from SpEL expressions.
+ * 
+ * For example, "/foo/bars/1/baz" becomes "foo.bars[1].baz".
+ * 
+ * @author Craig Walls
+ */
 public class PathToSpEL {
 
 	private static final SpelExpressionParser SPEL_EXPRESSION_PARSER = new SpelExpressionParser();
 
+	/**
+	 * Converts a patch path to an {@link Expression}.
+	 * @param path the patch path to convert.
+	 * @return an {@link Expression}
+	 */
 	public static Expression pathToExpression(String path) {
 		return SPEL_EXPRESSION_PARSER.parseExpression(pathToSpEL(path));
 	}
 	
+	/**
+	 * Convenience method to convert a SpEL String to an {@link Expression}.
+	 * @param spel the SpEL expression as a String
+	 * @return an {@link Expression}
+	 */
 	public static Expression spelToExpression(String spel) {
 		return SPEL_EXPRESSION_PARSER.parseExpression(spel);
 	}	
 	
-	public static String pathToSpEL(String path) {
+	/**
+	 * Produces an expression targeting the parent of the object that the given path targets. 
+	 * @param path the path to find a parent expression for.
+	 * @return an {@link Expression} targeting the parent of the object specifed by path.
+	 */
+	public static Expression pathToParentExpression(String path) {
+		return spelToExpression(pathNodesToSpEL(Arrays.copyOf(path.split("\\/"), path.split("\\/").length - 1)));
+	}
+
+	// private helpers
+	
+	private static String pathToSpEL(String path) {
 		return pathNodesToSpEL(path.split("\\/"));
 	}
 	
-	public static String pathToParentSpEL(String path) {
-		return pathNodesToSpEL(Arrays.copyOf(path.split("\\/"), path.split("\\/").length - 1));
-	}
-
-	public static String pathNodesToSpEL(String[] pathNodes) {
+	private static String pathNodesToSpEL(String[] pathNodes) {
 		StringBuilder spelBuilder = new StringBuilder();
 		
 		for(int i=0; i < pathNodes.length; i++) {

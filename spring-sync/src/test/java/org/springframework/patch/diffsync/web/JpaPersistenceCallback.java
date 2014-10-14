@@ -1,11 +1,11 @@
-package org.springframework.patch.diffsync;
+package org.springframework.patch.diffsync.web;
 
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.patch.diffsync.PersistenceCallback;
 
-public class JpaPersistenceCallback<T> implements PersistenceCallback<T> {
+class JpaPersistenceCallback<T> implements PersistenceCallback<T> {
 	
 	private final CrudRepository<T, Long> repo;
 	private Class<T> entityType;

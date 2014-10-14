@@ -16,11 +16,7 @@
 package org.springframework.patch;
 
 /**
- * <p>Replace operation.</p>
- * 
- * <p>
- * Replaces the value at the given path with a new value.
- * </p>
+ * Operation that replaces the value at the given path with a new value.
  * 
  * @author Craig Walls
  */

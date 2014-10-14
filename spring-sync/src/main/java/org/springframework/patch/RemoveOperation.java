@@ -16,12 +16,8 @@
 package org.springframework.patch;
 
 /**
- * <p>Remove operation.</p>
- * 
- * <p>
- * Removes the value at the given path.
+ * Operation that removes the value at the given path.
  * Will throw a {@link PatchException} if the given path isn't valid or if the path is non-nullable.
- * </p>
  * 
  * @author Craig Walls
  */

@@ -18,7 +18,12 @@ package org.springframework.patch;
 import java.util.List;
 
 /**
- * Represents a Patch.
+ * <p>Represents a Patch.</p>
+ * 
+ * <p>
+ * This class (and {@link PatchOperation} capture the definition of a patch, but are not coupled
+ * to any specific patch representation. 
+ * </p>
  * 
  * @author Craig Walls
  */

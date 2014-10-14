@@ -25,7 +25,11 @@ import org.springframework.patch.LateObjectEvaluator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JsonLateObjectEvaluator implements LateObjectEvaluator {
+/**
+ * {@link LateObjectEvaluator} implementation that assumes values represented as JSON objects.
+ * @author Craig Walls
+ */
+class JsonLateObjectEvaluator implements LateObjectEvaluator {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -40,7 +44,7 @@ public class JsonLateObjectEvaluator implements LateObjectEvaluator {
 	@Override
 	public Object evaluate(Object target) {
 		try {
-			Expression parentExpression = pathToExpression(pathToParentSpEL(path));
+			Expression parentExpression = pathToParentExpression(path);
 			Object parent = parentExpression != null ? parentExpression.getValue(target) : null;
 			Integer listIndex = targetListIndex(path);
 			if (parent == null || !(parent instanceof List) || listIndex == null) {

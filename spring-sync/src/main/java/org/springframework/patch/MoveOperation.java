@@ -16,10 +16,8 @@
 package org.springframework.patch;
 
 /**
- * <p>Move operation.</p>
- * 
  * <p>
- * Moves a value from the given "from" path to the given "path".
+ * Operation that moves a value from the given "from" path to the given "path".
  * Will throw a {@link PatchException} if either path is invalid or if the from path is non-nullable.
  * </p>
  * 

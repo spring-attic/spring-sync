@@ -16,13 +16,9 @@
 package org.springframework.patch;
 
 /**
- * <p>Add operation.</p>
- * 
- * <p>
- * Adds a new value to the given "path".
+ * Operation to add a new value to the given "path".
  * Will throw a {@link PatchException} if the path is invalid or if the given value 
  * is not assignable to the given path.
- * </p>
  * 
  * @author Craig Walls
  */

@@ -22,45 +22,71 @@ import java.util.List;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionException;
 
+/**
+ * Abstract base class representing and providing support methods for patch operations.
+ * 
+ * @author Craig Walls
+ */
 public abstract class PatchOperation {
 
 	protected final String op;
 	
 	protected final String path;
-	
-	protected final String spel;
-	
+		
 	protected final Object value;
 	
 	protected final Expression spelExpression;
-	
+
+	/**
+	 * Constructs the operation.
+	 * @param op the operation name. (e.g., 'move')
+	 * @param path the path to perform the operation on. (e.g., '/1/description')
+	 */
 	public PatchOperation(String op, String path) {
 		this(op, path, null);
 	}
 	
+	/**
+	 * Constructs the operation.
+	 * @param op the operation name. (e.g., 'move')
+	 * @param path the path to perform the operation on. (e.g., '/1/description')
+	 * @param value the value to apply in the operation. Could be an actual value or an implementation of {@link LateObjectEvaluator}.
+	 */
 	public PatchOperation(String op, String path, Object value) {
 		this.op = op;
 		this.path = path;
-		this.spel = pathToSpEL(path);
 		this.value = value;
-		this.spelExpression = spelToExpression(spel);
+		this.spelExpression = pathToExpression(path);
 	}
 	
+	/**
+	 * @return the operation name
+	 */
 	public String getOp() {
 		return op;
 	}
 	
+	/**
+	 * @return the operation path
+	 */
 	public String getPath() {
 		return path;
 	}
 	
+	/**
+	 * @return the operation's value (or {@link LateObjectEvaluator})
+	 */
 	public Object getValue() {
 		return value;
 	}
 	
-	abstract void perform(Object o);
-	
-	public Object popValueAtPath(Object target, String removePath) {
+	/**
+	 * Pops a value from the given path.
+	 * @param target the target from which to pop a value.
+	 * @param removePath the path from which to pop a value. Must be a list.
+	 * @return the value popped from the list
+	 */
+	protected Object popValueAtPath(Object target, String removePath) {
 		Integer listIndex = targetListIndex(removePath);
 		Expression expression = pathToExpression(removePath);
 		Object value = expression.getValue(target);
@@ -72,15 +98,22 @@ public abstract class PatchOperation {
 				throw new PatchException("Path '" + removePath + "' is not nullable.");
 			}
 		} else {
-			Expression parentExpression = spelToExpression(pathToParentSpEL(removePath));
+			Expression parentExpression = pathToParentExpression(removePath);
 			List<?> list = (List<?>) parentExpression.getValue(target);
 			list.remove(listIndex.intValue());
 			return value;
 		}
 	}
 	
-	public void addValue(Object target, Object value) {
-		Expression parentExpression = spelToExpression(pathToParentSpEL(path));
+	/**
+	 * Adds a value to the operation's path.
+	 * If the path references a list index, the value is added to the list at the given index.
+	 * If the path references an object property, the property is set to the value.
+	 * @param target The target object.
+	 * @param value The value to add.
+	 */
+	protected void addValue(Object target, Object value) {
+		Expression parentExpression = pathToParentExpression(path);
 		Object parent = parentExpression != null ? parentExpression.getValue(target) : null;
 		Integer listIndex = targetListIndex(path);
 		if (parent == null || !(parent instanceof List) || listIndex == null) {
@@ -92,21 +125,42 @@ public abstract class PatchOperation {
 		}
 	}
 
-	public void setValueOnTarget(Object target, Object value) {
+	/**
+	 * Sets a value to the operation's path.
+	 * @param target The target object.
+	 * @param value The value to set.
+	 */
+	protected void setValueOnTarget(Object target, Object value) {
 		spelExpression.setValue(target, value);
 	}
 
-	public Object getValueFromTarget(Object target) {
+	/**
+	 * Retrieves a value from the operation's path.
+	 * @param target the target object.
+	 * @return the value at the path on the given target object.
+	 */
+	protected Object getValueFromTarget(Object target) {
 		try {
 			return spelExpression.getValue(target);
 		} catch (ExpressionException e) {
 			throw new PatchException("Unable to get value from target", e);
 		}
 	}
-
+	
+	/**
+	 * Performs late-value evaluation on the operation value if the value is a {@link LateObjectEvaluator}.
+	 * @param targetObject the target object, used as assistance in determining the evaluated object's type.
+	 * @return the result of late-value evaluation if the value is a {@link LateObjectEvaluator}; the value itself otherwise.
+	 */
 	protected Object evaluateValueFromTarget(Object targetObject) {
 		return value instanceof LateObjectEvaluator ? ((LateObjectEvaluator) value).evaluate(targetObject) : value;		
 	}
+
+	/**
+	 * Perform the operation.
+	 * @param target the target of the operation.
+	 */
+	abstract void perform(Object target);
 
 	// private helpers
 	

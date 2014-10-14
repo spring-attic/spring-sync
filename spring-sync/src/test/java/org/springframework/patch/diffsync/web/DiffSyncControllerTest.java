@@ -34,7 +34,6 @@ import org.springframework.http.MediaType;
 import org.springframework.patch.Todo;
 import org.springframework.patch.TodoRepository;
 import org.springframework.patch.diffsync.EmbeddedDataSourceConfig;
-import org.springframework.patch.diffsync.JpaPersistenceCallback;
 import org.springframework.patch.diffsync.MapBasedShadowStore;
 import org.springframework.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.patch.diffsync.ShadowStore;
@@ -71,15 +70,9 @@ public class DiffSyncControllerTest {
 		
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(3, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("B", all.get(1).getDescription());
-		assertFalse(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
+		assertEquals(all.get(0), new Todo(1L, "A", false));
+		assertEquals(all.get(1), new Todo(2L, "B", false));
+		assertEquals(all.get(2), new Todo(3L, "C", false));
 	}
 
 	@Test
@@ -98,15 +91,9 @@ public class DiffSyncControllerTest {
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(3, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("B", all.get(1).getDescription());
-		assertTrue(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
+		assertEquals(all.get(0), new Todo(1L, "A", false));
+		assertEquals(all.get(1), new Todo(2L, "B", true));
+		assertEquals(all.get(2), new Todo(3L, "C", false));
 	}
 
 	@Test
@@ -125,15 +112,9 @@ public class DiffSyncControllerTest {
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(3, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("BBB", all.get(1).getDescription());
-		assertTrue(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
+		assertEquals(all.get(0), new Todo(1L, "A", false));
+		assertEquals(all.get(1), new Todo(2L, "BBB", true));
+		assertEquals(all.get(2), new Todo(3L, "C", false));
 	}
 
 	@Test
@@ -152,15 +133,9 @@ public class DiffSyncControllerTest {
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(3, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("AAA", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("B", all.get(1).getDescription());
-		assertTrue(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
+		assertEquals(all.get(0), new Todo(1L, "AAA", false));
+		assertEquals(all.get(1), new Todo(2L, "B", true));
+		assertEquals(all.get(2), new Todo(3L, "C", false));
 	}
 
 	@Test
@@ -180,18 +155,10 @@ public class DiffSyncControllerTest {
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(4, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(2L, all.get(1).getId().longValue());
-		assertEquals("B", all.get(1).getDescription());
-		assertFalse(all.get(1).isComplete());
-		assertEquals(3L, all.get(2).getId().longValue());
-		assertEquals("C", all.get(2).getDescription());
-		assertFalse(all.get(2).isComplete());
-		assertEquals(4L, all.get(3).getId().longValue());
-		assertEquals("D", all.get(3).getDescription());
-		assertFalse(all.get(3).isComplete());
+		assertEquals(all.get(0), new Todo(1L, "A", false));
+		assertEquals(all.get(1), new Todo(2L, "B", false));
+		assertEquals(all.get(2), new Todo(3L, "C", false));
+		assertEquals(all.get(2), new Todo(4L, "D", false));
 	}
 	
 	@Test
@@ -210,12 +177,8 @@ public class DiffSyncControllerTest {
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(2, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(3L, all.get(1).getId().longValue());
-		assertEquals("C", all.get(1).getDescription());
-		assertFalse(all.get(1).isComplete());
+		assertEquals(all.get(0), new Todo(1L, "A", false));
+		assertEquals(all.get(1), new Todo(3L, "C", false));
 	}
 
 	@Test
@@ -234,9 +197,7 @@ public class DiffSyncControllerTest {
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(1, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
+		assertEquals(all.get(0), new Todo(1L, "A", false));
 	}
 
 
@@ -256,9 +217,7 @@ public class DiffSyncControllerTest {
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(1, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertTrue(all.get(0).isComplete());
+		assertEquals(all.get(0), new Todo(1L, "A", true));
 	}
 
 	@Test
@@ -277,9 +236,7 @@ public class DiffSyncControllerTest {
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(1, all.size());
-		assertEquals(3L, all.get(0).getId().longValue());
-		assertEquals("C", all.get(0).getDescription());
-		assertTrue(all.get(0).isComplete());
+		assertEquals(all.get(0), new Todo(3L, "C", true));
 	}
 
 	@Test
@@ -298,19 +255,80 @@ public class DiffSyncControllerTest {
 
 		List<Todo> all = (List<Todo>) repository.findAll();
 		assertEquals(2, all.size());
-		assertEquals(1L, all.get(0).getId().longValue());
-		assertEquals("A", all.get(0).getDescription());
-		assertFalse(all.get(0).isComplete());
-		assertEquals(3L, all.get(1).getId().longValue());
-		assertEquals("C", all.get(1).getDescription());
-		assertFalse(all.get(1).isComplete());
+		assertEquals(all.get(0), new Todo(1L, "A", false));
+		assertEquals(all.get(1), new Todo(3L, "C", false));
 	}
+	
+	//
+	// server-side changes
+	//
+
+	@Test
+	public void noChangesFromClientSide_itemDeletedFromServer() throws Exception {
+		TodoRepository todoRepository = todoRepository();
+		MockMvc mvc = mockMvc(todoRepository);
+
+		performNoOpRequestToSetupShadow(mvc);
+		
+		repository.delete(2L);
+		
+		mvc.perform(
+				patch(RESOURCE_PATH)
+				.content("[]")
+				.accept(JSON_PATCH)
+				.contentType(JSON_PATCH))
+			.andExpect(content().string(resource("patch-remove-item")))
+			.andExpect(content().contentType(JSON_PATCH))
+			.andExpect(status().isOk());
+
+		List<Todo> all = (List<Todo>) repository.findAll();
+		assertEquals(2, all.size());
+		assertEquals(new Todo(1L, "A", false), all.get(0));
+		assertEquals(new Todo(3L, "C", false), all.get(1));
+	}
+	
+	@Test
+	@Ignore
+	public void statusChangedOnClient_itemDeletedFromServer() throws Exception {
+		TodoRepository todoRepository = todoRepository();
+		MockMvc mvc = mockMvc(todoRepository);
+
+		performNoOpRequestToSetupShadow(mvc);
+		
+		repository.delete(2L);
+		
+		mvc.perform(
+				patch(RESOURCE_PATH)
+				.content(resource("patch-change-single-status"))
+				.accept(JSON_PATCH)
+				.contentType(JSON_PATCH))
+			.andExpect(content().string(resource("patch-remove-completed-item")))
+			.andExpect(content().contentType(JSON_PATCH))
+			.andExpect(status().isOk());
+
+		List<Todo> all = (List<Todo>) repository.findAll();
+		assertEquals(2, all.size());
+		assertEquals(new Todo(1L, "A", false), all.get(0));
+		assertEquals(new Todo(3L, "C", false), all.get(1));
+	}
+	
 
 	
 	//
 	// private helpers
 	//
 
+	private void performNoOpRequestToSetupShadow(MockMvc mvc) throws Exception {
+		mvc.perform(
+				patch(RESOURCE_PATH)
+				.content("[]")
+				.accept(JSON_PATCH)
+				.contentType(JSON_PATCH))
+			.andExpect(content().string("[]"))
+			.andExpect(content().contentType(JSON_PATCH))
+			.andExpect(status().isOk());
+	}
+	
 	private String resource(String name) throws IOException {
 		ClassPathResource resource = new ClassPathResource("/org/springframework/patch/" + name + ".json");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));

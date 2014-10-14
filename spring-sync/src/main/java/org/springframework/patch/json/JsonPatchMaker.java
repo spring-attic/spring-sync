@@ -36,14 +36,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * Utility class to convert {@link JsonNode}s containing JSON Patch to/from {@link Patch} objects.
+ * @author Craig Walls
+ */
 public class JsonPatchMaker {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	/**
-	 * Constructs a JsonPatch object given a JsonNode.
+	 * Constructs a {@link Patch} object given a JsonNode.
 	 * @param jsonNode a JsonNode containing the JSON Patch
-	 * @return a JsonPatch
+	 * @return a {@link Patch}
 	 */
 	public Patch fromJsonNode(JsonNode jsonNode) {
 		if (!(jsonNode instanceof ArrayNode)) {
@@ -84,6 +88,11 @@ public class JsonPatchMaker {
 		return new Patch(ops);
 	}
 	
+	/**
+	 * Renders a {@link Patch} as a {@link JsonNode}.
+	 * @param patch the patch
+	 * @return a {@link JsonNode} containing JSON Patch.
+	 */
 	public JsonNode toJsonNode(Patch patch) {
 		
 		List<PatchOperation> operations = patch.getOperations();

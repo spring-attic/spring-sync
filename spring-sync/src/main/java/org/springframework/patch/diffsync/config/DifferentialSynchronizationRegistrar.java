@@ -29,11 +29,14 @@ import org.springframework.patch.diffsync.MapBasedShadowStore;
 import org.springframework.patch.diffsync.PersistenceCallbackRegistry;
 import org.springframework.patch.diffsync.ShadowStore;
 import org.springframework.patch.diffsync.web.DiffSyncController;
-import org.springframework.patch.diffsync.web.JsonPatchMethodArgumentResolver;
 import org.springframework.util.Assert;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+/**
+ * Configuration adapter for Differential Synchronization in Spring.
+ * @author Craig Walls
+ */
 @Configuration
 public class DifferentialSynchronizationRegistrar extends WebMvcConfigurerAdapter {
 
@@ -43,7 +46,6 @@ public class DifferentialSynchronizationRegistrar extends WebMvcConfigurerAdapte
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 		List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
 		messageConverters.add(new MappingJackson2HttpMessageConverter());
-		argumentResolvers.add(new JsonPatchMethodArgumentResolver(messageConverters));
 	}
 
 	@Autowired
