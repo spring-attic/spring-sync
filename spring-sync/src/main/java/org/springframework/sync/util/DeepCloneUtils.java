@@ -46,7 +46,6 @@ public class DeepCloneUtils {
 	public static <T> List<T> deepClone(List<T> original) {
 		List<T> copy = new ArrayList<T>(original.size());
 		for(T t : original) {
-			// TODO : Hokeyness in the following line should be addressed
 			copy.add((T) SerializationUtils.clone((Serializable) t)); 
 		}
 		return copy;

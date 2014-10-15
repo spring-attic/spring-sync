@@ -20,7 +20,6 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class CopyOperationTest {
@@ -79,7 +78,7 @@ public class CopyOperationTest {
 		copy.perform(todos, Todo.class);
 		
 		assertEquals(4, todos.size());
-		assertEquals(2L, todos.get(0).getId().longValue()); // TODO: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
+		assertEquals(2L, todos.get(0).getId().longValue()); // NOTE: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
 		assertEquals("B", todos.get(0).getDescription());
 		assertTrue(todos.get(0).isComplete());
 	}
@@ -96,7 +95,7 @@ public class CopyOperationTest {
 		copy.perform(todos, Todo.class);
 		
 		assertEquals(4, todos.size());
-		assertEquals(1L, todos.get(2).getId().longValue()); // TODO: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
+		assertEquals(1L, todos.get(2).getId().longValue()); // NOTE: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
 		assertEquals("A", todos.get(2).getDescription());
 		assertTrue(todos.get(2).isComplete());
 	}
@@ -113,13 +112,12 @@ public class CopyOperationTest {
 		copy.perform(todos, Todo.class);
 		
 		assertEquals(4, todos.size());
-		assertEquals(1L, todos.get(3).getId().longValue()); // TODO: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
+		assertEquals(1L, todos.get(3).getId().longValue()); // NOTE: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
 		assertEquals("A", todos.get(3).getDescription());
 		assertTrue(todos.get(3).isComplete());
 	}
 	
 	@Test
-	@Ignore("TODO: IGNORED UNTIL TILDE SUPPORT IS IMPLEMENTED")
 	public void copyListElementToEndOfList_usingTilde() throws Exception {
 		// initial Todo list
 		List<Todo> todos = new ArrayList<Todo>();
@@ -131,8 +129,22 @@ public class CopyOperationTest {
 		copy.perform(todos, Todo.class);
 		
 		assertEquals(4, todos.size());
-		assertEquals(1L, todos.get(3).getId().longValue()); // TODO: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
-		assertEquals("A", todos.get(3).getDescription());
-		assertTrue(todos.get(3).isComplete());
+		assertEquals(new Todo(1L, "A", true), todos.get(3)); // NOTE: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
 	}
+
+	@Test
+	public void copyListElementFromEndOfList_usingTilde() throws Exception {
+		// initial Todo list
+		List<Todo> todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", true));
+		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(3L, "C", false));
+		
+		CopyOperation copy = new CopyOperation("/0", "/~");
+		copy.perform(todos, Todo.class);
+		
+		assertEquals(4, todos.size());
+		assertEquals(new Todo(3L, "C", false), todos.get(0)); // NOTE: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
+	}
+
 }

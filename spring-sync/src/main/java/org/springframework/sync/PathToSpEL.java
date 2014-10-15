@@ -69,10 +69,15 @@ public class PathToSpEL {
 		
 		for(int i=0; i < pathNodes.length; i++) {
 			String pathNode = pathNodes[i];
-			
 			if (pathNode.length() == 0) {
 				continue;
 			}
+			
+			if ("~".equals(pathNode)) {
+				spelBuilder.append("[size() - 1]");
+				continue;
+			}
+			
 			try {
 				int index = Integer.parseInt(pathNode);
 				spelBuilder.append('[').append(index).append(']');

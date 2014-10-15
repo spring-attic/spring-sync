@@ -15,51 +15,34 @@
  */
 package org.springframework.sync;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.springframework.expression.Expression;
 
-public class TestOperationTest {
+public class PathToSpelTest {
 
 	@Test
-	public void testPropertyValueEquals() throws Exception {
-		// initial Todo list
+	public void listIndex() {
+		Expression expr = PathToSpEL.pathToExpression("/1/description");
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", false));
-		todos.add(new Todo(2L, "B", true));
+		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
-		
-		TestOperation test = new TestOperation("/0/complete", false);
-		test.perform(todos, Todo.class);
-
-		TestOperation test2 = new TestOperation("/1/complete", true);
-		test2.perform(todos, Todo.class);
-
-	}
-
-	@Test(expected=PatchException.class)
-	public void testPropertyValueNotEquals() throws Exception {
-		// initial Todo list
-		List<Todo> todos = new ArrayList<Todo>();
-		todos.add(new Todo(1L, "A", false));
-		todos.add(new Todo(2L, "B", true));
-		todos.add(new Todo(3L, "C", false));
-		
-		TestOperation test = new TestOperation("/0/complete", true);
-		test.perform(todos, Todo.class);
+		assertEquals("B", (String) expr.getValue(todos));		
 	}
 	
 	@Test
-	public void testListElementEquals() throws Exception {
+	public void listTilde() {
+		Expression expr = PathToSpEL.pathToExpression("/~/description");
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", false));
-		todos.add(new Todo(2L, "B", true));
+		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
-		
-		TestOperation test = new TestOperation("/1", new Todo(2L, "B", true));
-		test.perform(todos, Todo.class);
-
+		assertEquals("C", (String) expr.getValue(todos));
 	}
-
+	
 }

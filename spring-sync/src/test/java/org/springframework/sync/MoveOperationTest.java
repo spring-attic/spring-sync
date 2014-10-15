@@ -20,7 +20,6 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class MoveOperationTest {
@@ -136,20 +135,43 @@ public class MoveOperationTest {
 	}
 	
 	@Test
-	@Ignore("TODO: IGNORED UNTIL TILDE SUPPORT IS IMPLEMENTED")
+	public void moveListElementToBeginningOfList_usingTilde() throws Exception {
+		// initial Todo list
+		List<Todo> todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", true));
+		todos.add(new Todo(3L, "C", false));
+		todos.add(new Todo(4L, "E", false));
+		todos.add(new Todo(2L, "G", false));
+		
+		List<Todo> expected = new ArrayList<Todo>();
+		expected.add(new Todo(1L, "A", true));
+		expected.add(new Todo(2L, "G", false));
+		expected.add(new Todo(3L, "C", false));
+		expected.add(new Todo(4L, "E", false));
+		
+		MoveOperation move = new MoveOperation("/1", "/~");
+		move.perform(todos, Todo.class);
+		assertEquals(expected, todos);
+	}
+
+	@Test
 	public void moveListElementToEndOfList_usingTilde() throws Exception {
 		// initial Todo list
 		List<Todo> todos = new ArrayList<Todo>();
 		todos.add(new Todo(1L, "A", true));
-		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(2L, "G", false));
 		todos.add(new Todo(3L, "C", false));
+		todos.add(new Todo(4L, "E", false));
 		
-		MoveOperation move = new MoveOperation("/~", "/0");
+		List<Todo> expected = new ArrayList<Todo>();
+		expected.add(new Todo(1L, "A", true));
+		expected.add(new Todo(3L, "C", false));
+		expected.add(new Todo(4L, "E", false));
+		expected.add(new Todo(2L, "G", false));
+		
+		MoveOperation move = new MoveOperation("/~", "/1");
 		move.perform(todos, Todo.class);
-		
-		assertEquals(3, todos.size());
-		assertEquals(1L, todos.get(3).getId().longValue());
-		assertEquals("A", todos.get(3).getDescription());
-		assertTrue(todos.get(3).isComplete());
+		assertEquals(expected, todos);
 	}
+
 }

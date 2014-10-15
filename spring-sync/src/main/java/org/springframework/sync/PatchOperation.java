@@ -100,7 +100,7 @@ public abstract class PatchOperation {
 		} else {
 			Expression parentExpression = pathToParentExpression(removePath);
 			List<?> list = (List<?>) parentExpression.getValue(target);
-			list.remove(listIndex.intValue());
+			list.remove(listIndex >= 0 ? listIndex.intValue() : list.size() - 1);
 			return value;
 		}
 	}
@@ -121,7 +121,8 @@ public abstract class PatchOperation {
 		} else {
 			@SuppressWarnings("unchecked")
 			List<Object> list = (List<Object>) parentExpression.getValue(target);
-			list.add(listIndex, value);
+			int addAtIndex = listIndex >= 0 ? listIndex.intValue() : list.size();
+			list.add(addAtIndex, value);
 		}
 	}
 
@@ -164,11 +165,17 @@ public abstract class PatchOperation {
 
 	// private helpers
 	
-	
 	private Integer targetListIndex(String path) {
 		String[] pathNodes = path.split("\\/");
+		
+		String lastNode = pathNodes[pathNodes.length - 1];
+		
+		if ("~".equals(lastNode)) {
+			return -1;
+		}
+		
 		try {
-			return Integer.parseInt(pathNodes[pathNodes.length - 1]);
+			return Integer.parseInt(lastNode);
 		} catch (NumberFormatException e) {
 			return null;
 		}
