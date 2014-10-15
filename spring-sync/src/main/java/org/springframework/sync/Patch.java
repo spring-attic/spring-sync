@@ -53,18 +53,39 @@ public class Patch {
 	 * and in case any errors occur while performing the patch.
 	 * 
 	 * @param in The object graph to apply the patch to. 
+	 * @param type The object type.
 	 * @return An object graph modified by the patch.
 	 * @throws PatchException if there are any errors while applying the patch.
 	 */
-	public <T> T apply(T in) throws PatchException {
+	public <T> T apply(T in, Class<T> type) throws PatchException {
 		// Make defensive copy of in before performing operations so that if any op fails, the original is left untouched
 		T work = DeepCloneUtils.deepClone(in);
 		
 		for (PatchOperation operation : operations) {
-			operation.perform(work);
+			operation.perform(work, type);
 		}
 
 		return work;
 	}
 
+	/**
+	 * Applies the Patch to a given List of objects. Makes a copy of the given list so that it will remain unchanged after application of the patch
+	 * and in case any errors occur while performing the patch.
+	 * 
+	 * @param in The list to apply the patch to. 
+	 * @param type The list's generic type.
+	 * @return An list modified by the patch.
+	 * @throws PatchException if there are any errors while applying the patch.
+	 */
+	public <T> List<T> apply(List<T> in, Class<T> type) throws PatchException {
+		// Make defensive copy of in before performing operations so that if any op fails, the original is left untouched
+		List<T> work = DeepCloneUtils.deepClone(in);
+		
+		for (PatchOperation operation : operations) {
+			operation.perform(work, type);
+		}
+
+		return work;
+	}
+	
 }

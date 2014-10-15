@@ -37,6 +37,6 @@ package org.springframework.sync;
  */
 public interface LateObjectEvaluator {
 
-	Object evaluate(Object target);
+	<T> Object evaluate(Class<T> type);
 	
 }

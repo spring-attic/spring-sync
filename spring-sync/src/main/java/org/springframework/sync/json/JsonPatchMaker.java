@@ -128,7 +128,7 @@ public class JsonPatchMaker {
 		} else if (valueNode.isLong()) {
 			return valueNode.asLong();
 		} else if (valueNode.isObject()) {
-			return new JsonLateObjectEvaluator(path, valueNode);
+			return new JsonLateObjectEvaluator(valueNode);
 		} else if (valueNode.isArray()) {
 			// TODO: Convert valueNode to array
 		}

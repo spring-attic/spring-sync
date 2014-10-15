@@ -32,7 +32,7 @@ public class RemoveOperation extends PatchOperation {
 	}
 	
 	@Override
-	void perform(Object target) {
+	<T> void perform(Object target, Class<T> type) {
 		popValueAtPath(target, path);
 	}
 

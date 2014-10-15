@@ -152,15 +152,15 @@ public abstract class PatchOperation {
 	 * @param targetObject the target object, used as assistance in determining the evaluated object's type.
 	 * @return the result of late-value evaluation if the value is a {@link LateObjectEvaluator}; the value itself otherwise.
 	 */
-	protected Object evaluateValueFromTarget(Object targetObject) {
-		return value instanceof LateObjectEvaluator ? ((LateObjectEvaluator) value).evaluate(targetObject) : value;		
+	protected <T> Object evaluateValueFromTarget(Object targetObject, Class<T> entityType) {
+		return value instanceof LateObjectEvaluator ? ((LateObjectEvaluator) value).evaluate(entityType) : value;		
 	}
 
 	/**
 	 * Perform the operation.
 	 * @param target the target of the operation.
 	 */
-	abstract void perform(Object target);
+	abstract <T> void perform(Object target, Class<T> type);
 
 	// private helpers
 	

@@ -46,7 +46,7 @@ public class JsonPatchTest {
 		Patch patch = readJsonPatch("/org/springframework/sync/patch-many-successful-operations.json");
 		assertEquals(6, patch.size());
 
-		List<Todo> patchedTodos = patch.apply(todos);
+		List<Todo> patchedTodos = patch.apply(todos, Todo.class);
 		
 		assertEquals(6, todos.size());
 		assertTrue(patchedTodos.get(1).isComplete());
@@ -68,7 +68,7 @@ public class JsonPatchTest {
 		Patch patch = readJsonPatch("/org/springframework/sync/patch-failing-operation-first.json");
 
 		try {
-			patch.apply(todos);
+			patch.apply(todos, Todo.class);
 			fail();
 		} catch (PatchException e) {
 			assertEquals("Test against path '/5/description' failed.", e.getMessage());
@@ -96,7 +96,7 @@ public class JsonPatchTest {
 		Patch patch = readJsonPatch("/org/springframework/sync/patch-failing-operation-in-middle.json");
 
 		try {
-			patch.apply(todos);
+			patch.apply(todos, Todo.class);
 			fail();
 		} catch (PatchException e) {
 			assertEquals("Test against path '/5/description' failed.", e.getMessage());

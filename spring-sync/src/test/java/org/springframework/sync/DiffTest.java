@@ -21,9 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.sync.Diff;
-import org.springframework.sync.Patch;
-import org.springframework.sync.PatchOperation;
 
 public class DiffTest {
 
@@ -32,7 +29,7 @@ public class DiffTest {
 		List<Todo> original = buildTodoList();
 		List<Todo> modified = buildTodoList();
 
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(0, diff.size());
 	}
 	
@@ -40,7 +37,7 @@ public class DiffTest {
 	public void nullPropertyToNonNullProperty() throws Exception {
 		Todo original = new Todo(null, "A", false);
 		Todo modified = new Todo(1L, "A", false);		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 
 		List<PatchOperation> ops = diff.getOperations();
@@ -55,7 +52,7 @@ public class DiffTest {
 		Todo original = new Todo(1L, "A", false);
 		Todo modified = new Todo(1L, "A", true);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		
 		List<PatchOperation> ops = diff.getOperations();
@@ -74,7 +71,7 @@ public class DiffTest {
 		Todo original = new Todo(1L, "A", false);
 		Todo modified = new Todo(1L, "B", false);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -92,7 +89,7 @@ public class DiffTest {
 		Todo original = new Todo(1L, "A", false);
 		Todo modified = new Todo(2L, "A", false);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -110,7 +107,7 @@ public class DiffTest {
 		Todo original = new Todo(1L, "A", false);
 		Todo modified = new Todo(1L, "B", true);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(4, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -137,7 +134,7 @@ public class DiffTest {
 		List<Todo> modified = buildTodoList();
 		modified.get(1).setComplete(true);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -156,7 +153,7 @@ public class DiffTest {
 		List<Todo> modified = buildTodoList();
 		modified.get(1).setDescription("BBB");
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -176,7 +173,7 @@ public class DiffTest {
 		modified.get(1).setComplete(true);
 		modified.get(1).setDescription("BBB");
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(4, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -204,7 +201,7 @@ public class DiffTest {
 		modified.get(0).setDescription("AAA");
 		modified.get(1).setComplete(true);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(4, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -230,7 +227,7 @@ public class DiffTest {
 		List<Todo> original = buildTodoList();
 		List<Todo> modified = buildTodoList();
 		modified.add(0, new Todo(0L, "Z", false));
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(1, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -249,7 +246,7 @@ public class DiffTest {
 		modified.add(0, new Todo(25L, "Y", false));
 		modified.add(0, new Todo(26L, "Z", true));
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -273,7 +270,7 @@ public class DiffTest {
 		List<Todo> original = buildTodoList();
 		List<Todo> modified = buildTodoList();
 		modified.add(2, new Todo(0L, "Z", false));
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(1, diff.size());
 
 		List<PatchOperation> ops = diff.getOperations();
@@ -293,7 +290,7 @@ public class DiffTest {
 		modified.add(2, new Todo(25L, "Y", false));
 		modified.add(2, new Todo(26L, "Z", true));
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -316,7 +313,7 @@ public class DiffTest {
 		List<Todo> original = buildTodoList();
 		List<Todo> modified = buildTodoList();
 		modified.add(3, new Todo(0L, "Z", false));
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(1, diff.size());
 		
 		List<PatchOperation> ops = diff.getOperations();
@@ -336,7 +333,7 @@ public class DiffTest {
 		modified.add(3, new Todo(25L, "Y", false));
 		modified.add(4, new Todo(26L, "Z", true));
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -362,7 +359,7 @@ public class DiffTest {
 		modified.add(0, new Todo(25L, "Y", false));
 		modified.add(4, new Todo(26L, "Z", true));
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -387,7 +384,7 @@ public class DiffTest {
 		List<Todo> modified = buildTodoList();
 		modified.remove(0);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 
 		List<PatchOperation> ops = diff.getOperations();
@@ -409,7 +406,7 @@ public class DiffTest {
 		List<Todo> modified = buildTodoList();
 		modified.remove(1);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -430,7 +427,7 @@ public class DiffTest {
 		List<Todo> modified = buildTodoList();
 		modified.remove(2);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(2, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);
@@ -453,7 +450,7 @@ public class DiffTest {
 		modified.remove(0);
 		modified.remove(0);
 		
-		Patch diff = new Diff().diff(original, modified);
+		Patch diff = Diff.diff(original, modified);
 		assertEquals(6, diff.size());
 		List<PatchOperation> ops = diff.getOperations();
 		PatchOperation op = ops.get(0);

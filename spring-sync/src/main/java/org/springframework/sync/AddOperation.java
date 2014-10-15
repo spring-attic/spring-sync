@@ -34,8 +34,8 @@ public class AddOperation extends PatchOperation {
 	}
 	
 	@Override
-	void perform(Object targetObject) {
-		addValue(targetObject, evaluateValueFromTarget(targetObject));
+	<T> void perform(Object targetObject, Class<T> type) {
+		addValue(targetObject, evaluateValueFromTarget(targetObject, type));
 	}
 	
 }

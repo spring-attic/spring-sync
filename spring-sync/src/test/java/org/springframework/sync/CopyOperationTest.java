@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.sync.CopyOperation;
 
 public class CopyOperationTest {
 
@@ -35,7 +34,7 @@ public class CopyOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		CopyOperation copy = new CopyOperation("/1/complete", "/0/complete");
-		copy.perform(todos);
+		copy.perform(todos, Todo.class);
 
 		assertTrue(todos.get(1).isComplete());
 	}
@@ -49,7 +48,7 @@ public class CopyOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		CopyOperation copy = new CopyOperation("/1/description", "/0/description");
-		copy.perform(todos);
+		copy.perform(todos, Todo.class);
 
 		assertEquals("A", todos.get(1).getDescription());
 	}
@@ -63,7 +62,7 @@ public class CopyOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		CopyOperation copy = new CopyOperation("/1/description", "/0/complete");
-		copy.perform(todos);
+		copy.perform(todos, Todo.class);
 
 		assertEquals("true", todos.get(1).getDescription());
 	}
@@ -77,7 +76,7 @@ public class CopyOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		CopyOperation copy = new CopyOperation("/0", "/1");
-		copy.perform(todos);
+		copy.perform(todos, Todo.class);
 		
 		assertEquals(4, todos.size());
 		assertEquals(2L, todos.get(0).getId().longValue()); // TODO: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
@@ -94,7 +93,7 @@ public class CopyOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		CopyOperation copy = new CopyOperation("/2", "/0");
-		copy.perform(todos);
+		copy.perform(todos, Todo.class);
 		
 		assertEquals(4, todos.size());
 		assertEquals(1L, todos.get(2).getId().longValue()); // TODO: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
@@ -111,7 +110,7 @@ public class CopyOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		CopyOperation copy = new CopyOperation("/3", "/0");
-		copy.perform(todos);
+		copy.perform(todos, Todo.class);
 		
 		assertEquals(4, todos.size());
 		assertEquals(1L, todos.get(3).getId().longValue()); // TODO: This could be problematic if you try to save it to a DB because there'll be duplicate IDs
@@ -129,7 +128,7 @@ public class CopyOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		CopyOperation copy = new CopyOperation("/~", "/0");
-		copy.perform(todos);
+		copy.perform(todos, Todo.class);
 		
 		assertEquals(4, todos.size());
 		assertEquals(1L, todos.get(3).getId().longValue()); // TODO: This could be problematic if you try to save it to a DB because there'll be duplicate IDs

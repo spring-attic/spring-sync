@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.sync.AddOperation;
 
 public class AddOperationTest {
 
@@ -35,7 +34,7 @@ public class AddOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		AddOperation add = new AddOperation("/1/complete", true);
-		add.perform(todos);
+		add.perform(todos, Todo.class);
 		
 		assertTrue(todos.get(1).isComplete());
 	}
@@ -49,7 +48,7 @@ public class AddOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		AddOperation add = new AddOperation("/1/description", "BBB");
-		add.perform(todos);
+		add.perform(todos, Todo.class);
 		
 		assertEquals("BBB", todos.get(1).getDescription());
 	}
@@ -64,7 +63,7 @@ public class AddOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		AddOperation add = new AddOperation("/1", new Todo(null, "D", true));
-		add.perform(todos);
+		add.perform(todos, Todo.class);
 		
 		assertEquals(4, todos.size());
 		assertEquals("A", todos.get(0).getDescription());

@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.sync.PatchException;
-import org.springframework.sync.TestOperation;
 
 public class TestOperationTest {
 
@@ -33,10 +31,10 @@ public class TestOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		TestOperation test = new TestOperation("/0/complete", false);
-		test.perform(todos);
+		test.perform(todos, Todo.class);
 
 		TestOperation test2 = new TestOperation("/1/complete", true);
-		test2.perform(todos);
+		test2.perform(todos, Todo.class);
 
 	}
 
@@ -49,7 +47,7 @@ public class TestOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		TestOperation test = new TestOperation("/0/complete", true);
-		test.perform(todos);
+		test.perform(todos, Todo.class);
 	}
 	
 	@Test
@@ -60,7 +58,7 @@ public class TestOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		TestOperation test = new TestOperation("/1", new Todo(2L, "B", true));
-		test.perform(todos);
+		test.perform(todos, Todo.class);
 
 	}
 

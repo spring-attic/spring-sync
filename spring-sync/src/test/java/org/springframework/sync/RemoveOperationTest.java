@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.sync.RemoveOperation;
 
 public class RemoveOperationTest {
 
@@ -33,7 +32,7 @@ public class RemoveOperationTest {
 		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
 
-		new RemoveOperation("/1/description").perform(todos);
+		new RemoveOperation("/1/description").perform(todos, Todo.class);
 		
 		assertNull(todos.get(1).getDescription());
 	}
@@ -46,7 +45,7 @@ public class RemoveOperationTest {
 		todos.add(new Todo(2L, "B", false));
 		todos.add(new Todo(3L, "C", false));
 
-		new RemoveOperation("/1").perform(todos);
+		new RemoveOperation("/1").perform(todos, Todo.class);
 		
 		assertEquals(2, todos.size());
 		assertEquals("A", todos.get(0).getDescription());

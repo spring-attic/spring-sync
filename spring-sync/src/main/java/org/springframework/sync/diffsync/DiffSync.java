@@ -86,10 +86,10 @@ public class DiffSync<T> {
 		}
 		
 		T shadow = getShadow(target);
-		shadow = patch.apply(shadow);
+		shadow = patch.apply(shadow, entityType);
 		putShadow(shadow);
 
-		return patch.apply(DeepCloneUtils.deepClone(target));
+		return patch.apply(DeepCloneUtils.deepClone(target), entityType);
 	}
 	
 	/**
@@ -106,10 +106,10 @@ public class DiffSync<T> {
 		}
 		
 		List<T> shadow = getShadow(target);
-		shadow = patch.apply(shadow);
+		shadow = patch.apply(shadow, entityType);
 		putShadow(shadow);
 
-		return patch.apply(DeepCloneUtils.deepClone(target));
+		return patch.apply(DeepCloneUtils.deepClone(target), entityType);
 	}
 	
 	/**
@@ -120,8 +120,8 @@ public class DiffSync<T> {
 	 */
 	public Patch diff(T target) {
 		T shadow = getShadow(target);
-		Patch diff = new Diff().diff(shadow, target);
-		putShadow(diff.apply(shadow));
+		Patch diff = Diff.diff(shadow, target);
+		putShadow(diff.apply(shadow, entityType));
 		return diff;
 	}
 	
@@ -133,8 +133,8 @@ public class DiffSync<T> {
 	 */
 	public Patch diff(List<T> target) {
 		List<T> shadow = getShadow(target);
-		Patch diff = new Diff().diff(shadow, target);
-		putShadow(diff.apply(shadow));
+		Patch diff = Diff.diff(shadow, target);
+		putShadow(diff.apply(shadow, entityType));
 		return diff;
 	}
 	

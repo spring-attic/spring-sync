@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.sync.ReplaceOperation;
 
 public class ReplaceOperationTest {
 
@@ -34,7 +33,7 @@ public class ReplaceOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		ReplaceOperation replace = new ReplaceOperation("/1/complete", true);
-		replace.perform(todos);
+		replace.perform(todos, Todo.class);
 		
 		assertTrue(todos.get(1).isComplete());
 	}
@@ -48,7 +47,7 @@ public class ReplaceOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		ReplaceOperation replace = new ReplaceOperation("/1/description", "BBB");
-		replace.perform(todos);
+		replace.perform(todos, Todo.class);
 
 		assertEquals("BBB", todos.get(1).getDescription());
 	}
@@ -62,7 +61,7 @@ public class ReplaceOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		ReplaceOperation replace = new ReplaceOperation("/1/description", 22);
-		replace.perform(todos);
+		replace.perform(todos, Todo.class);
 
 		assertEquals("22", todos.get(1).getDescription());
 	}

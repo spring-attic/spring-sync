@@ -22,8 +22,6 @@ import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.sync.MoveOperation;
-import org.springframework.sync.PatchException;
 
 public class MoveOperationTest {
 
@@ -37,7 +35,7 @@ public class MoveOperationTest {
 		
 		try {
 			MoveOperation move = new MoveOperation("/1/complete", "/0/complete");
-			move.perform(todos);
+			move.perform(todos, Todo.class);
 			fail();
 		} catch (PatchException e) {
 			assertEquals("Path '/0/complete' is not nullable.", e.getMessage());
@@ -55,7 +53,7 @@ public class MoveOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		MoveOperation move = new MoveOperation("/1/description", "/0/description");
-		move.perform(todos);
+		move.perform(todos, Todo.class);
 
 		assertEquals("A", todos.get(1).getDescription());
 	}
@@ -70,7 +68,7 @@ public class MoveOperationTest {
 		
 		try {
 			MoveOperation move = new MoveOperation("/1/description", "/0/complete");
-			move.perform(todos);
+			move.perform(todos, Todo.class);
 			fail();
 		} catch (PatchException e) {
 			assertEquals("Path '/0/complete' is not nullable.", e.getMessage());
@@ -95,7 +93,7 @@ public class MoveOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		MoveOperation move = new MoveOperation("/0", "/1");
-		move.perform(todos);
+		move.perform(todos, Todo.class);
 		
 		assertEquals(3, todos.size());
 		assertEquals(2L, todos.get(0).getId().longValue());
@@ -112,7 +110,7 @@ public class MoveOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		MoveOperation move = new MoveOperation("/2", "/0");
-		move.perform(todos);
+		move.perform(todos, Todo.class);
 		
 		assertEquals(3, todos.size());
 		assertEquals(1L, todos.get(2).getId().longValue());
@@ -129,7 +127,7 @@ public class MoveOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		MoveOperation move = new MoveOperation("/2", "/0");
-		move.perform(todos);
+		move.perform(todos, Todo.class);
 		
 		assertEquals(3, todos.size());
 		assertEquals(1L, todos.get(2).getId().longValue());
@@ -147,7 +145,7 @@ public class MoveOperationTest {
 		todos.add(new Todo(3L, "C", false));
 		
 		MoveOperation move = new MoveOperation("/~", "/0");
-		move.perform(todos);
+		move.perform(todos, Todo.class);
 		
 		assertEquals(3, todos.size());
 		assertEquals(1L, todos.get(3).getId().longValue());

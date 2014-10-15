@@ -40,7 +40,7 @@ public class Diff {
 	 * @return a {@link Patch} describing the differences between the two objects.
 	 * @throws PatchException if an error occurs while performing the difference.
 	 */
-	public Patch diff(Object original, Object modified) throws PatchException {
+	public static Patch diff(Object original, Object modified) throws PatchException {
 		try {
 			List<PatchOperation> operations = new ArrayList<PatchOperation>();
 			if (original instanceof List && modified instanceof List) {
@@ -57,7 +57,7 @@ public class Diff {
 	
 	// private helpers
 	
-	private void diffList(List<PatchOperation> operations, String path, List<?> original, List<?> modified) throws IOException, IllegalAccessException {
+	private static void diffList(List<PatchOperation> operations, String path, List<?> original, List<?> modified) throws IOException, IllegalAccessException {
 	
 		difflib.Patch diff = DiffUtils.diff(original, modified);
 		List<Delta> deltas = diff.getDeltas();
@@ -88,7 +88,7 @@ public class Diff {
 		}
 	}
 	
-	private void diffNonList(List<PatchOperation> operations, String path, Object original, Object modified) throws IOException, IllegalAccessException {
+	private static void diffNonList(List<PatchOperation> operations, String path, Object original, Object modified) throws IOException, IllegalAccessException {
 		
 		if (!ObjectUtils.nullSafeEquals(original, modified)) {
 			if (modified == null) {
@@ -120,7 +120,7 @@ public class Diff {
 		
 	}
 
-	private boolean isPrimitive(Object o) {
+	private static boolean isPrimitive(Object o) {
 		return o instanceof String || o instanceof Number || o instanceof Boolean;
 	}
 	

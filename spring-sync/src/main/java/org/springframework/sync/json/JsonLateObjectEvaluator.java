@@ -15,11 +15,6 @@
  */
 package org.springframework.sync.json;
 
-import static org.springframework.sync.PathToSpEL.*;
-
-import java.util.List;
-
-import org.springframework.expression.Expression;
 import org.springframework.sync.LateObjectEvaluator;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,56 +28,19 @@ class JsonLateObjectEvaluator implements LateObjectEvaluator {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
-	private String path;
 	private JsonNode valueNode;
 
-	public JsonLateObjectEvaluator(String path, JsonNode valueNode) {
-		this.path = path;
+	public JsonLateObjectEvaluator(JsonNode valueNode) {
 		this.valueNode = valueNode;
 	}
 	
 	@Override
-	public Object evaluate(Object target) {
+	public <T> Object evaluate(Class<T> type) {
 		try {
-			Expression parentExpression = pathToParentExpression(path);
-			Object parent = parentExpression != null ? parentExpression.getValue(target) : null;
-			Integer listIndex = targetListIndex(path);
-			if (parent == null || !(parent instanceof List) || listIndex == null) {
-				// TODO: What to do if the target isn't a list???
-				// TODO: Look at target type and use that to guess
-				// TODO: Need a test around this
-			} else {
-				@SuppressWarnings("unchecked")
-				List<Object> list = (List<Object>) parentExpression.getValue(target);
-				Class<?> guessedType = guessListType(list);
-				return MAPPER.readValue(valueNode.traverse(), guessedType);
-			}
-			return null;
+			return MAPPER.readValue(valueNode.traverse(), type);
 		} catch (Exception e) {
 			return null;
 		}
-	}
-	
-	// TODO: Duplicates same method in PatchOperation
-	private Integer targetListIndex(String path) {
-		String[] pathNodes = path.split("\\/");
-		try {
-			return Integer.parseInt(pathNodes[pathNodes.length - 1]);
-		} catch (NumberFormatException e) {
-			return null;
-		}
-	}
-
-	private Class<?> guessListType(List<?> list) {
-		// TODO: Guess assumes a non-empty list.
-		//       If the list is empty, then this won't work.
-		//       It also assumes a homogeneous list. If there are mixed types in the list, it won't work.
-		//
-		//       Other ways to guess:
-		//       - If the list is a declared property, introspection might work
-		//       - JsonPatchOperation could be explicitly given the type
-
-		return !list.isEmpty() ? list.get(0).getClass() : null;
 	}
 
 }

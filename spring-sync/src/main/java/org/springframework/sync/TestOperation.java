@@ -43,9 +43,9 @@ public class TestOperation extends PatchOperation {
 	}
 	
 	@Override
-	void perform(Object targetObject) {
-		Object expected = normalizeIfNumber(evaluateValueFromTarget(targetObject));
-		Object actual = normalizeIfNumber(getValueFromTarget(targetObject));		
+	<T> void perform(Object target, Class<T> type) {
+		Object expected = normalizeIfNumber(evaluateValueFromTarget(target, type));
+		Object actual = normalizeIfNumber(getValueFromTarget(target));		
 		if (!ObjectUtils.nullSafeEquals(expected, actual)) {
 			throw new PatchException("Test against path '" + path + "' failed.");
 		}

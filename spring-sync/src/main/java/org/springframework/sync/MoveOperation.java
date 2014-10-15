@@ -43,7 +43,7 @@ public class MoveOperation extends FromOperation {
 	}
 	
 	@Override
-	void perform(Object target) {
+	<T> void perform(Object target, Class<T> type) {
 		addValue(target, popValueAtPath(target, from));
 	}
 	

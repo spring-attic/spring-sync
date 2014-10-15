@@ -55,7 +55,7 @@ public class CopyOperation extends FromOperation {
 	}
 	
 	@Override
-	void perform(Object target) {
+	<T> void perform(Object target, Class<T> type) {
 		addValue(target, pathToExpression(from).getValue(target));
 	}
 	
