@@ -61,15 +61,24 @@ public class DiffSyncController {
 		return applyAndDiff(patch, (List) persistenceCallback.findAll(), persistenceCallback);
 	}
 
+	@RequestMapping(
+			value="${spring.diffsync.path:}/{resource}/{id}",
+			method=RequestMethod.PATCH)
+	public Patch patch(@PathVariable("resource") String resource, @PathVariable("id") String id, @RequestBody Patch patch) throws PatchException {
+		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);		
+		Object findOne = persistenceCallback.findOne(id);
+		return applyAndDiff2(patch, findOne, persistenceCallback);
+	}
+
 	
-	@SuppressWarnings({ "unchecked", "rawtypes", "unused" }) // TODO : This is unused now...can use it later when we handle single resource patches in the controller
-	private <T> Patch applyAndDiff(Patch patch, T target, PersistenceCallback<T> persistenceCallback) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private <T> Patch applyAndDiff2(Patch patch, Object target, PersistenceCallback<T> persistenceCallback) {
 		if (target instanceof List) {
 			return applyAndDiff(patch, (List) target, persistenceCallback);
 		}
 		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
 
-		T patched = sync.apply(patch, target);
+		T patched = sync.apply(patch, (T) target);
 		persistenceCallback.persistChange(patched);
 		return sync.diff(patched);
 	}

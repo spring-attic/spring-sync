@@ -54,6 +54,78 @@ public class DiffSyncControllerTest {
 	
 	private static final MediaType JSON_PATCH = new MediaType("application", "json-patch+json");
 	
+	//
+	// entity patching
+	//
+	
+	@Test
+	public void patchSendsEntityStatusChange() throws Exception {
+		TodoRepository todoRepository = todoRepository();
+		MockMvc mvc = mockMvc(todoRepository);
+		
+		mvc.perform(
+				patch(RESOURCE_PATH + "/2")
+				.content(resource("patch-change-entity-status"))
+				.accept(JSON_PATCH)
+				.contentType(JSON_PATCH))
+			.andExpect(status().isOk())
+			.andExpect(content().string("[]"))
+			.andExpect(content().contentType(JSON_PATCH));
+
+		List<Todo> all = (List<Todo>) repository.findAll();
+		assertEquals(3, all.size());
+		assertEquals(new Todo(1L, "A", false), all.get(0));
+		assertEquals(new Todo(2L, "B", true), all.get(1));
+		assertEquals(new Todo(3L, "C", false), all.get(2));
+	}
+
+	@Test
+	public void patchSendsEntityDescriptionChange() throws Exception {
+		TodoRepository todoRepository = todoRepository();
+		MockMvc mvc = mockMvc(todoRepository);
+		
+		mvc.perform(
+				patch(RESOURCE_PATH + "/2")
+				.content(resource("patch-change-entity-description"))
+				.accept(JSON_PATCH)
+				.contentType(JSON_PATCH))
+			.andExpect(status().isOk())
+			.andExpect(content().string("[]"))
+			.andExpect(content().contentType(JSON_PATCH));
+
+		List<Todo> all = (List<Todo>) repository.findAll();
+		assertEquals(3, all.size());
+		assertEquals(new Todo(1L, "A", false), all.get(0));
+		assertEquals(new Todo(2L, "BBB", false), all.get(1));
+		assertEquals(new Todo(3L, "C", false), all.get(2));
+	}
+
+	@Test
+	public void patchSendsEntityIdChange() throws Exception {
+		TodoRepository todoRepository = todoRepository();
+		MockMvc mvc = mockMvc(todoRepository);
+		
+		mvc.perform(
+				patch(RESOURCE_PATH + "/2")
+				.content(resource("patch-change-entity-id"))
+				.accept(JSON_PATCH)
+				.contentType(JSON_PATCH))
+			.andExpect(status().isOk())
+			.andExpect(content().string("[]"))
+			.andExpect(content().contentType(JSON_PATCH));
+
+		List<Todo> all = (List<Todo>) repository.findAll();
+		assertEquals(4, all.size());
+		assertEquals(new Todo(1L, "A", false), all.get(0));
+		assertEquals(new Todo(2L, "B", false), all.get(1));
+		assertEquals(new Todo(3L, "C", false), all.get(2));
+		assertEquals(new Todo(4L, "B", false), all.get(3)); // This is odd behavior, but correct in the context of the backing database.
+	}
+
+	//
+	// list patching
+	//
+	
 	@Test
 	public void noChangesFromEitherSide() throws Exception {
 		TodoRepository todoRepository = todoRepository();

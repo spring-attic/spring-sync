@@ -36,6 +36,11 @@ class JpaPersistenceCallback<T> implements PersistenceCallback<T> {
 	}
 	
 	@Override
+	public T findOne(String id) {
+		return repo.findOne(Long.valueOf(id));
+	}
+	
+	@Override
 	public void persistChange(T itemToSave) {
 		repo.save(itemToSave);
 	}

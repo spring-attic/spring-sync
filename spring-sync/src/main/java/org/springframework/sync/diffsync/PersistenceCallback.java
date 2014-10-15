@@ -33,6 +33,13 @@ public interface PersistenceCallback<T> {
 	 * @return all instance of the entity
 	 */
 	List<T> findAll();
+	
+	/**
+	 * find a single entity
+	 * @param id the id of the entity as a String. The implementation may convert it to the actual type.
+	 * @return the entity
+	 */
+	T findOne(String id);
 
 	/**
 	 * Save a single item.
