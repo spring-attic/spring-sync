@@ -15,13 +15,11 @@
  */
 package org.springframework.sync.diffsync;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.springframework.sync.Diff;
 import org.springframework.sync.Patch;
+import org.springframework.sync.util.DeepCloneUtils;
 
 /**
  * <p>
@@ -91,7 +89,7 @@ public class DiffSync<T> {
 		shadow = patch.apply(shadow);
 		putShadow(shadow);
 
-		return patch.apply(deepClone(target));
+		return patch.apply(DeepCloneUtils.deepClone(target));
 	}
 	
 	/**
@@ -111,7 +109,7 @@ public class DiffSync<T> {
 		shadow = patch.apply(shadow);
 		putShadow(shadow);
 
-		return patch.apply(deepCloneList(target));
+		return patch.apply(DeepCloneUtils.deepClone(target));
 	}
 	
 	/**
@@ -147,7 +145,7 @@ public class DiffSync<T> {
 		String shadowStoreKey = getShadowStoreKey(target);
 		T shadow = (T) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
-			shadow = deepClone(target);
+			shadow = DeepCloneUtils.deepClone(target);
 		}
 		return shadow;
 	}
@@ -162,7 +160,7 @@ public class DiffSync<T> {
 		String shadowStoreKey = getShadowStoreKey(target);
 		List<T> shadow = (List<T>) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
-			shadow = deepCloneList(target);
+			shadow = DeepCloneUtils.deepClone(target);
 		}
 		return shadow;
 	}
@@ -180,21 +178,6 @@ public class DiffSync<T> {
 		} else {
 			return "shadow/" + resourceName;
 		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	private T deepClone(T original) {
-		return (T) SerializationUtils.clone((Serializable) original);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private List<T> deepCloneList(List<T> original) {
-		List<T> copy = new ArrayList<T>(original.size());
-		for(T t : original) {
-			// TODO : Hokeyness in the following line should be addressed
-			copy.add((T) SerializationUtils.clone((Serializable) t)); 
-		}
-		return copy;
 	}
 
 }

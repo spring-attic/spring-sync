@@ -17,6 +17,8 @@ package org.springframework.sync;
 
 import java.util.List;
 
+import org.springframework.sync.util.DeepCloneUtils;
+
 /**
  * <p>Represents a Patch.</p>
  * 
@@ -47,15 +49,16 @@ public class Patch {
 	}
 	
 	/**
-	 * Applies the Patch to a given Object graph.
-	 * @param in the object graph to apply the patch to.
-	 * @return an object graph modified by the patch.
+	 * Applies the Patch to a given Object graph. Makes a copy of the given object so that it will remain unchanged after application of the patch
+	 * and in case any errors occur while performing the patch.
+	 * 
+	 * @param in The object graph to apply the patch to. 
+	 * @return An object graph modified by the patch.
 	 * @throws PatchException if there are any errors while applying the patch.
 	 */
 	public <T> T apply(T in) throws PatchException {
-		// TODO: Make defensive copy of in before performing operations so that
-		//       if any op fails, the original left untouched
-		T work = in; // TODO: This is not really a defensive copy; just a placeholder
+		// Make defensive copy of in before performing operations so that if any op fails, the original is left untouched
+		T work = DeepCloneUtils.deepClone(in);
 		
 		for (PatchOperation operation : operations) {
 			operation.perform(work);

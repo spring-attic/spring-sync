@@ -63,9 +63,7 @@ public class JsonPatchMaker {
 			String path = opNode.get("path").textValue();
 			
 			JsonNode valueNode = opNode.get("value");
-			Object value = valueFromJsonNode(path, valueNode);
-			// TODO: Pass value to the operations instead of valueString
-			
+			Object value = valueFromJsonNode(path, valueNode);			
 			String from = opNode.has("from") ? opNode.get("from").textValue() : null;
 
 			if (opType.equals("test")) {

@@ -55,7 +55,7 @@ public class Diff {
 		}
 	}
 	
-	// static helpers
+	// private helpers
 	
 	private void diffList(List<PatchOperation> operations, String path, List<?> original, List<?> modified) throws IOException, IllegalAccessException {
 	
