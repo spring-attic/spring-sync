@@ -18,7 +18,10 @@ package org.springframework.sync.diffsync.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.sync.Patch;
 import org.springframework.sync.PatchException;
 import org.springframework.sync.diffsync.DiffSync;
@@ -27,10 +30,12 @@ import org.springframework.sync.diffsync.IdPropertyEquivalency;
 import org.springframework.sync.diffsync.PersistenceCallback;
 import org.springframework.sync.diffsync.PersistenceCallbackRegistry;
 import org.springframework.sync.diffsync.ShadowStore;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -56,35 +61,41 @@ public class DiffSyncController {
 	@RequestMapping(
 			value="${spring.diffsync.path:}/{resource}",
 			method=RequestMethod.PATCH)
-	public Patch patch(@PathVariable("resource") String resource, @RequestBody Patch patch) throws PatchException {
+	public Patch patch(@PathVariable("resource") String resource, @RequestBody Patch patch, HttpSession session) throws PatchException {
 		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);		
-		return applyAndDiff(patch, (List) persistenceCallback.findAll(), persistenceCallback);
+		return applyAndDiff(patch, (List) persistenceCallback.findAll(), persistenceCallback, session.getId());
 	}
 
 	@RequestMapping(
 			value="${spring.diffsync.path:}/{resource}/{id}",
 			method=RequestMethod.PATCH)
-	public Patch patch(@PathVariable("resource") String resource, @PathVariable("id") String id, @RequestBody Patch patch) throws PatchException {
+	public Patch patch(@PathVariable("resource") String resource, @PathVariable("id") String id, @RequestBody Patch patch, HttpSession session) throws PatchException {
 		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);		
 		Object findOne = persistenceCallback.findOne(id);
-		return applyAndDiff2(patch, findOne, persistenceCallback);
+		return applyAndDiff2(patch, findOne, persistenceCallback, session.getId());
 	}
 
 	
+	@ExceptionHandler(PatchException.class)
+	@ResponseStatus(value=HttpStatus.CONFLICT, reason="Unable to apply patch")
+	public void handlePatchException(PatchException e) {
+	}
+	
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> Patch applyAndDiff2(Patch patch, Object target, PersistenceCallback<T> persistenceCallback) {
+	private <T> Patch applyAndDiff2(Patch patch, Object target, PersistenceCallback<T> persistenceCallback, String sessionId) {
 		if (target instanceof List) {
-			return applyAndDiff(patch, (List) target, persistenceCallback);
+			return applyAndDiff(patch, (List) target, persistenceCallback, sessionId);
 		}
-		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
+		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType(), sessionId);
 
 		T patched = sync.apply(patch, (T) target);
 		persistenceCallback.persistChange(patched);
 		return sync.diff(patched);
 	}
 	
-	private <T> Patch applyAndDiff(Patch patch, List<T> target, PersistenceCallback<T> persistenceCallback) {
-		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
+	private <T> Patch applyAndDiff(Patch patch, List<T> target, PersistenceCallback<T> persistenceCallback, String sessionId) {
+		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType(), sessionId);
 		
 		List<T> patched = sync.apply(patch, target);
 

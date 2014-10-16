@@ -61,7 +61,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_emptyPatch() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-empty");
 
 		List<Todo> todos = getTodoList();
@@ -73,7 +73,7 @@ public class DiffSyncTest {
 	
 	@Test
 	public void patchList_addNewItem() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-add-new-item");
 
 		List<Todo> todos = getTodoList();
@@ -92,7 +92,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_changeSingleEntityStatusAndDescription() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-change-single-status-and-desc");
 
 		List<Todo> todos = getTodoList();
@@ -110,7 +110,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_changeSingleEntityStatus() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-change-single-status");
 
 		List<Todo> todos = getTodoList();
@@ -128,7 +128,7 @@ public class DiffSyncTest {
 	
 	@Test
 	public void patchList_changeStatusAndDeleteTwoItems() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-change-status-and-delete-two-items");
 
 		List<Todo> todos = getTodoList();
@@ -144,7 +144,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_changeTwoStatusAndDescription() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-change-two-status-and-desc");
 
 		List<Todo> todos = getTodoList();
@@ -162,7 +162,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_deleteTwoItemsAndChangeStatusOnAnother() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-delete-twoitems-and-change-status-on-another");
 
 		List<Todo> todos = getTodoList();
@@ -178,7 +178,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_patchFailingOperationFirst() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-failing-operation-first");
 
 		List<Todo> todos = getTodoList();
@@ -195,7 +195,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_patchFailingOperationInMiddle() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-failing-operation-in-middle");
 
 		List<Todo> todos = getTodoList();
@@ -212,7 +212,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_manySuccessfulOperations() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-many-successful-operations");
 
 		List<Todo> todos = getBigTodoList();
@@ -233,7 +233,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_modifyThenRemoveItem() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-modify-then-remove-item");
 
 		List<Todo> todos = getTodoList();
@@ -250,7 +250,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchList_removeItem() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-remove-item");
 
 		List<Todo> todos = getTodoList();
@@ -267,7 +267,7 @@ public class DiffSyncTest {
 	
 	@Test
 	public void patchList_removeTwoItems() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-remove-two-items");
 
 		List<Todo> todos = getTodoList();
@@ -287,7 +287,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchEntity_emptyPatch() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("patch-empty");
 
 		Todo todo = new Todo(1L, "A", false);
@@ -303,7 +303,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchEntity_booleanProperty() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("single-change-status");
 
 		Todo todo = new Todo(1L, "A", false);
@@ -320,7 +320,7 @@ public class DiffSyncTest {
 	
 	@Test
 	public void patchEntity_stringProperty() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("single-change-description");
 
 		Todo todo = new Todo(1L, "A", false);
@@ -336,7 +336,7 @@ public class DiffSyncTest {
 
 	@Test
 	public void patchEntity_numericProperty() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("single-change-id");
 
 		Todo todo = new Todo(1L, "A", false);
@@ -352,7 +352,7 @@ public class DiffSyncTest {
 	
 	@Test
 	public void patchEntity_stringAndBooleanProperties() throws Exception {
-		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class);
+		DiffSync<Todo> sync = new DiffSync<Todo>(new MapBasedShadowStore(), Todo.class, "1234");
 		Patch patch = readJsonPatchFromResource("single-change-status-and-desc");
 
 		Todo todo = new Todo(1L, "A", false);

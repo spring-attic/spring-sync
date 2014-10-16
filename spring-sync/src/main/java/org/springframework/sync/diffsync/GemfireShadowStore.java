@@ -15,27 +15,33 @@
  */
 package org.springframework.sync.diffsync;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.data.gemfire.GemfireOperations;
 
 /**
- * Implementation of {@link ShadowStore} that keeps shadows in an in-memory map.
- * Not recommended for production applications, as it isn't scalable in terms of the number of clients.
- * Consider {@link RedisShadowStore} or {@link GemfireShadowStore} instead.
+ * {@link ShadowStore} implementation that stores shadow copies in Pivotal GemFire.
+ * 
  * @author Craig Walls
  */
-public class MapBasedShadowStore implements ShadowStore {
+public class GemfireShadowStore implements ShadowStore {
 
-	private Map<String, Object> store = new HashMap<String, Object>();
+	private GemfireOperations gemfireTemplate;
+
+	/**
+	 * Constructs a GemFire-based {@link ShadowStore}.
+	 * @param gemfireTemplate a {@link GemfireOperations} that will be used to store shadow copies.
+	 */
+	public GemfireShadowStore(GemfireOperations gemfireTemplate) {
+		this.gemfireTemplate = gemfireTemplate;
+	}
 	
 	@Override
 	public void putShadow(String key, Object shadow) {
-		store.put(key, shadow);
+		gemfireTemplate.put(key, shadow);
 	}
 
 	@Override
 	public Object getShadow(String key) {
-		return store.get(key);
+		return gemfireTemplate.get(key);
 	}
 
 }

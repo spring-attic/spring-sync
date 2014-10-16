@@ -15,27 +15,34 @@
  */
 package org.springframework.sync.diffsync;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 
 /**
- * Implementation of {@link ShadowStore} that keeps shadows in an in-memory map.
- * Not recommended for production applications, as it isn't scalable in terms of the number of clients.
- * Consider {@link RedisShadowStore} or {@link GemfireShadowStore} instead.
+ * {@link ShadowStore} implementation that stores shadows in Redis, via an injected {@link RedisTemplate}.
+ * 
  * @author Craig Walls
  */
-public class MapBasedShadowStore implements ShadowStore {
+public class RedisShadowStore implements ShadowStore {
 
-	private Map<String, Object> store = new HashMap<String, Object>();
+	private RedisOperations<String, Object> redisTemplate;
+
+	/**
+	 * Constructs a Redis-based {@link ShadowStore}.
+	 * @param redisTemplate a {@link RedisOperations} that will be used to store shadow copies.
+	 */
+	public RedisShadowStore(RedisOperations<String, Object> redisTemplate) {
+		this.redisTemplate = redisTemplate;
+	}
 	
 	@Override
 	public void putShadow(String key, Object shadow) {
-		store.put(key, shadow);
+		redisTemplate.opsForValue().set(key, shadow);
 	}
 
 	@Override
 	public Object getShadow(String key) {
-		return store.get(key);
+		return redisTemplate.opsForValue().get(key);
 	}
 
 }
