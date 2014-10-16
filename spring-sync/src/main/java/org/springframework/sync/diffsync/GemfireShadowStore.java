@@ -15,6 +15,10 @@
  */
 package org.springframework.sync.diffsync;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.gemfire.GemfireOperations;
 
 /**
@@ -22,9 +26,11 @@ import org.springframework.data.gemfire.GemfireOperations;
  * 
  * @author Craig Walls
  */
-public class GemfireShadowStore implements ShadowStore {
+public class GemfireShadowStore extends AbstractShadowStore implements DisposableBean {
 
 	private GemfireOperations gemfireTemplate;
+	
+	private List<String> keys = new ArrayList<String>();
 
 	/**
 	 * Constructs a GemFire-based {@link ShadowStore}.
@@ -36,12 +42,21 @@ public class GemfireShadowStore implements ShadowStore {
 	
 	@Override
 	public void putShadow(String key, Object shadow) {
-		gemfireTemplate.put(key, shadow);
+		String nodeKey = getNodeSpecificKey(key);
+		gemfireTemplate.put(nodeKey, shadow);
+		keys.add(nodeKey);
 	}
 
 	@Override
 	public Object getShadow(String key) {
-		return gemfireTemplate.get(key);
+		return gemfireTemplate.get(getNodeSpecificKey(key));
 	}
 
+	@Override
+	public void destroy() throws Exception {
+		for (String key : keys) {
+			gemfireTemplate.remove(key);
+		}
+	}
+	
 }

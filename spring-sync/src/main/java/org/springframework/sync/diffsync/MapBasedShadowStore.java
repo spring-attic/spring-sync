@@ -24,18 +24,18 @@ import java.util.Map;
  * Consider {@link RedisShadowStore} or {@link GemfireShadowStore} instead.
  * @author Craig Walls
  */
-public class MapBasedShadowStore implements ShadowStore {
+public class MapBasedShadowStore extends AbstractShadowStore {
 
 	private Map<String, Object> store = new HashMap<String, Object>();
 	
 	@Override
 	public void putShadow(String key, Object shadow) {
-		store.put(key, shadow);
+		store.put(getNodeSpecificKey(key), shadow);
 	}
 
 	@Override
 	public Object getShadow(String key) {
-		return store.get(key);
+		return store.get(getNodeSpecificKey(key));
 	}
 
 }

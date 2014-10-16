@@ -15,6 +15,10 @@
  */
 package org.springframework.sync.diffsync;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -23,9 +27,11 @@ import org.springframework.data.redis.core.RedisTemplate;
  * 
  * @author Craig Walls
  */
-public class RedisShadowStore implements ShadowStore {
+public class RedisShadowStore extends AbstractShadowStore implements DisposableBean {
 
 	private RedisOperations<String, Object> redisTemplate;
+	
+	private List<String> keys = new ArrayList<String>();
 
 	/**
 	 * Constructs a Redis-based {@link ShadowStore}.
@@ -34,15 +40,22 @@ public class RedisShadowStore implements ShadowStore {
 	public RedisShadowStore(RedisOperations<String, Object> redisTemplate) {
 		this.redisTemplate = redisTemplate;
 	}
-	
+
 	@Override
 	public void putShadow(String key, Object shadow) {
-		redisTemplate.opsForValue().set(key, shadow);
+		String nodeKey = getNodeSpecificKey(key);
+		redisTemplate.opsForValue().set(nodeKey, shadow);
+		keys.add(nodeKey);
 	}
 
 	@Override
 	public Object getShadow(String key) {
-		return redisTemplate.opsForValue().get(key);
+		return redisTemplate.opsForValue().get(getNodeSpecificKey(key));
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		redisTemplate.delete(keys);
 	}
 
 }

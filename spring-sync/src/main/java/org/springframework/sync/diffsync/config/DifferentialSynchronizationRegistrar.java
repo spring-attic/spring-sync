@@ -18,6 +18,8 @@ package org.springframework.sync.diffsync.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,10 +59,11 @@ public class DifferentialSynchronizationRegistrar extends WebMvcConfigurerAdapte
 		
 	@Bean
 	@Scope(value="session", proxyMode=ScopedProxyMode.TARGET_CLASS)
-	public ShadowStore shadowStore() {
+	public ShadowStore shadowStore(HttpSession session) {
 		for (DiffSyncConfigurer diffSyncConfigurer : diffSyncConfigurers) {
 			ShadowStore shadowStore = diffSyncConfigurer.getShadowStore();
 			if (shadowStore != null) {
+				shadowStore.setRemoteNodeId(session.getId());
 				return shadowStore;
 			}
 		}
