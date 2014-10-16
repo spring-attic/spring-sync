@@ -61,18 +61,14 @@ public class DiffSync<T> {
 
 	private Class<T> entityType;
 
-	private String remoteNodeId;
-	
 	/**
 	 * Constructs the Differential Synchronization routine instance.
 	 * @param shadowStore the shadow store
 	 * @param entityType the type of entity this DiffSync works with
-	 * @param remoteNodeId String value that uniquely identifies the remote node. Used to identify the shadow copy that the local node maintains for the remote node.
 	 */
-	public DiffSync(ShadowStore shadowStore, Class<T> entityType, String remoteNodeId) {
+	public DiffSync(ShadowStore shadowStore, Class<T> entityType) {
 		this.shadowStore = shadowStore;
 		this.entityType = entityType;
-		this.remoteNodeId = remoteNodeId;
 	}
 	
 	
@@ -178,9 +174,9 @@ public class DiffSync<T> {
 	private String getShadowStoreKey(Object o) {
 		String resourceName = entityType.getSimpleName();
 		if (o instanceof List) {
-			return remoteNodeId + ":shadow/list/" + resourceName;
+			return "shadow/list/" + resourceName;
 		} else {
-			return remoteNodeId + ":shadow/" + resourceName;
+			return "shadow/" + resourceName;
 		}
 	}
 

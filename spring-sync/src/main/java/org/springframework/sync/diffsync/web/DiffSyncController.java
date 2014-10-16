@@ -63,7 +63,7 @@ public class DiffSyncController {
 			method=RequestMethod.PATCH)
 	public Patch patch(@PathVariable("resource") String resource, @RequestBody Patch patch, HttpSession session) throws PatchException {
 		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);		
-		return applyAndDiff(patch, (List) persistenceCallback.findAll(), persistenceCallback, session.getId());
+		return applyAndDiff(patch, (List) persistenceCallback.findAll(), persistenceCallback);
 	}
 
 	@RequestMapping(
@@ -72,7 +72,7 @@ public class DiffSyncController {
 	public Patch patch(@PathVariable("resource") String resource, @PathVariable("id") String id, @RequestBody Patch patch, HttpSession session) throws PatchException {
 		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);		
 		Object findOne = persistenceCallback.findOne(id);
-		return applyAndDiff2(patch, findOne, persistenceCallback, session.getId());
+		return applyAndDiff2(patch, findOne, persistenceCallback);
 	}
 
 	
@@ -83,19 +83,19 @@ public class DiffSyncController {
 	
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> Patch applyAndDiff2(Patch patch, Object target, PersistenceCallback<T> persistenceCallback, String sessionId) {
+	private <T> Patch applyAndDiff2(Patch patch, Object target, PersistenceCallback<T> persistenceCallback) {
 		if (target instanceof List) {
-			return applyAndDiff(patch, (List) target, persistenceCallback, sessionId);
+			return applyAndDiff(patch, (List) target, persistenceCallback);
 		}
-		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType(), sessionId);
+		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
 
 		T patched = sync.apply(patch, (T) target);
 		persistenceCallback.persistChange(patched);
 		return sync.diff(patched);
 	}
 	
-	private <T> Patch applyAndDiff(Patch patch, List<T> target, PersistenceCallback<T> persistenceCallback, String sessionId) {
-		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType(), sessionId);
+	private <T> Patch applyAndDiff(Patch patch, List<T> target, PersistenceCallback<T> persistenceCallback) {
+		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
 		
 		List<T> patched = sync.apply(patch, target);
 
