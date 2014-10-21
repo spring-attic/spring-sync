@@ -117,6 +117,18 @@ configure(allprojects) {
 configure(subprojects) { subproject ->
 	apply from: "${rootProject.projectDir}/publish-maven.gradle"
 
+    if (project.hasProperty('platformVersion')) {
+        apply plugin: 'spring-io'
+
+        repositories {
+            maven { url "https://repo.spring.io/libs-snapshot" }
+        }
+
+        dependencies {
+            springIoVersions "io.spring.platform:platform-versions:${platformVersion}@properties"
+        }
+    }
+
 	jar {
 		manifest.attributes["Created-By"] =
 				"${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
@@ -294,17 +306,12 @@ task dist(type: Zip) {
 artifacts {
     archives dist
     archives project(':docs').docsZip
-    archives project(':docs').schemaZip
 }    
 
 	task wrapper(type: Wrapper) {
 		gradleVersion = "1.12"
 	}
 
-}
-
-configure(docProjects) {
-    tasks.findByPath("artifactoryPublish")?.enabled = false
 }
 
 task updateRootDocs << {
