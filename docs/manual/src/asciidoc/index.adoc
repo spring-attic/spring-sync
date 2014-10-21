@@ -1,0 +1,45 @@
+= Spring Sync Reference
+Craig Walls
+
+The Spring Sync project enables Spring applications to streamline communication between application nodes by applying patches to data resources.
+
+== Introduction
+
+Although traditional resource-oriented REST is an effective mechanism for client-server communication, it leaves much to be desired in terms of efficiency when communicating changes in large resources. Moreover, it's ineffective when multiple resources must be changed atomically.
+
+To illustrate, imagine a simple todo-list application containing several hundred todo items. Now imagine that the client wishes to mark 500 of those todo items as complete. A typical REST approach would be to send 500 distinct PUT requests with the updated status, one for each item. Aside from the chatty-ness of the communication, if any of those PUT requests were to fail, it would have no bearing on the outcome of any of the other requests, potentially leaving the client out of sync with the server.
+
+Alternatively, the HTTP PATCH specification defines a PATCH method (http://tools.ietf.org/html/rfc5789) for sending changesets in a single request. Although HTTP PATCH does not define any specific patch format, when coupled with a sophisticated patch represention such as JSON Patch (https://tools.ietf.org/html/rfc6902), HTTP PATCH addresses both concerns of efficient communication and transactional updates.
+
+NOTE: It should be noted that HTTP PATCH (esp. with JSON Patch) is not strictly RESTful in nature, in that a single request may contain multiple operations against many resources. A pragmatic application of HTTP PATCH alongside convential resource-oriented REST can, however, yield benefits in terms of communication efficiency.
+
+Spring Sync provides support for patch-based communication in several ways:
+
+ * A generic Patch implementation (decoupled from any particular Patch format) that can be applied to Java objects and collections.
+ * A Diff utility for comparing Java objects and producing Patches describing the differences.
+ * A utility for creating a Patch from a JSON Patch document.
+ * Support for applying patches via Differential Synchronization.
+ * A Spring MVC controller that handles HTTP PATCH requests and applies them via Differential Synchronization.
+
+Although Spring Sync offers several features with emphasis on JSON Patch, HTTP PATCH, and Differential Synchronization, it should be noted that these are all orthogonal with regard to each other. 
+
+ * JSON Patch is just one possible patch format. Other formats could be considered, so long as they can be translated into the operations supported by Spring Sync's Patch implementation.
+ * Sending and receiving patches over HTTP is just one application of patching. Patches could be transmitted over other protocols, including WebSocket. 
+ * Differential Synchronization is just one approach to creating and applying patches, but it may not be appropriate in all circumstances. The Patch implementation can be used on its own to produce patches, even if you do not wish to apply Differential Synchronization. 
+
+Throughout this reference manual, you'll be introduced to the core pieces of Spring Sync, starting with working with patches and moving up to processing HTTP PATCH requests via Differential Synchronization.
+
+[[section_patches]]
+== Working with Patches
+
+TODO
+
+[[section_diffsync]]
+== Applying Differential Synchronization
+
+TODO
+
+[[section_configureweb]]
+== Configuring Differential Synchronization for the web
+
+TODO

@@ -1,0 +1,122 @@
+    // Docbook and Javadoc building and uploading tasks
+apply plugin: 'base'
+
+description = "Spring Sync - Documentation"
+
+task docs {
+    dependsOn 'manual:asciidoctor', 'apidocs'
+}
+
+project('manual') {
+    description = "Spring Sync - Reference Manual"
+    apply plugin: 'base'
+    apply plugin: 'asciidoctor'
+
+    ext.expandPlaceholders = ""
+
+    asciidoctor {
+        options = [
+          eruby: 'erubis',
+          attributes: [
+              copycss : '',
+              icons : 'font',
+              'source-highlighter': 'prettify',
+              sectanchors : '',
+              toc2: '',
+              idprefix: '',
+              idseparator: '-',
+              doctype: 'book',
+              numbered: '',
+              'spring-sync-version' : project.version,
+              'spring-version' : springVersion,
+              revnumber : project.version
+          ]
+        ]
+    }
+
+
+    ext.spec = copySpec {
+        into ('reference/htmlsingle') {
+            from(asciidoctor.outputDir)
+            exclude 'build', 'Guardfile'
+        }
+    }
+}
+
+task apidocs(type: Javadoc) {
+    destinationDir = new File(buildDir, 'apidocs')
+    title = "Spring Sync $version API"
+
+    source coreModuleProjects.collect { project ->
+        project.sourceSets.main.allJava
+    }
+
+    classpath = files(coreModuleProjects.collect { project ->
+        project.sourceSets.main.compileClasspath
+    })
+}
+
+apidocs.options.outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
+
+apidocs.options.links = [
+    "http://docs.spring.io/spring/docs/4.1.x/javadoc-api/",
+    "http://download.oracle.com/javase/6/docs/api/"
+]
+
+apidocs.options.groups = [
+    'Spring Sync':[
+        'org.springframework.sync',
+        'org.springframework.sync.diffsync',
+        'org.springframework.sync.diffsync.config',
+        'org.springframework.sync.web',
+        'org.springframework.sync.json',
+        'org.springframework.sync.util']
+]
+
+ext.apiSpec = copySpec {
+    into('apidocs') {
+        from(apidocs.destinationDir)
+    }
+}
+
+assemble.dependsOn = [apidocs, 'manual:asciidoctor']
+
+task docsZip(type: Zip) {
+    dependsOn docs
+    group = 'Distribution'
+    baseName = rootProject.name
+    classifier = 'docs'
+    description = "Builds -${classifier} archive containing api and reference " +
+        "for deployment at static.springframework.org/spring-sync/site/docs."
+
+    with(project(':docs').apiSpec)
+    with(project(':docs:manual').spec)
+}
+
+task schemaZip(type: Zip) {
+    group = 'Distribution'
+    baseName = rootProject.name
+    classifier = 'schema'
+    description = "Builds -${classifier} archive containing all " +
+        "XSDs for deployment at static.springframework.org/schema."
+
+    coreModuleProjects.each { module ->
+        def Properties schemas = new Properties();
+
+        module.sourceSets.main.resources.find {
+            it.path.endsWith('META-INF/spring.schemas')
+        }?.withInputStream { schemas.load(it) }
+
+        for (def key : schemas.keySet()) {
+            def shortName = key.replaceAll(/http.*schema.(.*).spring-.*/, '$1')
+            assert shortName != key
+            File xsdFile = module.sourceSets.main.resources.find {
+                it.path.endsWith(schemas.get(key))
+            }
+            assert xsdFile != null
+            into (shortName) {
+                from xsdFile.path
+            }
+        }
+    }
+}

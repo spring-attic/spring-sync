@@ -30,6 +30,7 @@ public class DeepCloneUtils {
 	/**
 	 * Deep clones an object.
 	 * @param original a single, non-list object to be cloned
+	 * @param <T> the object's type
 	 * @return the cloned object
 	 */
 	@SuppressWarnings("unchecked")
@@ -40,6 +41,7 @@ public class DeepCloneUtils {
 	/**
 	 * Deep clones a list.
 	 * @param original a list to be cloned
+	 * @param <T> the list's generic type
 	 * @return the cloned list
 	 */
 	@SuppressWarnings("unchecked")

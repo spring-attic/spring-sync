@@ -54,6 +54,7 @@ public class Patch {
 	 * 
 	 * @param in The object graph to apply the patch to. 
 	 * @param type The object type.
+	 * @param <T> the object type.
 	 * @return An object graph modified by the patch.
 	 * @throws PatchException if there are any errors while applying the patch.
 	 */
@@ -74,6 +75,7 @@ public class Patch {
 	 * 
 	 * @param in The list to apply the patch to. 
 	 * @param type The list's generic type.
+	 * @param <T> the list's generic type.
 	 * @return An list modified by the patch.
 	 * @throws PatchException if there are any errors while applying the patch.
 	 */

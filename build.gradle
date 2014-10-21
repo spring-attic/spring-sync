@@ -6,9 +6,15 @@ buildscript {
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.6")
 		classpath("org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE")
 		classpath("org.springframework.build.gradle:docbook-reference-plugin:0.2.8")
+        classpath('org.asciidoctor:asciidoctor-gradle-plugin:0.7.0')
+        classpath('org.asciidoctor:asciidoctor-java-integration:0.1.4.preview.1')
 		classpath("me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1")
 	}
 }
+
+// Set up different subproject lists for individual configuration
+ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'manual' }
+ext.coreModuleProjects = javaProjects
 
 configure(allprojects) {
 	group = "org.springframework.sync"
@@ -224,9 +230,9 @@ project('spring-sync') {
 configure(rootProject) {
 	description = "Spring Sync"
 
-	apply plugin: "docbook-reference"
+//	apply plugin: "docbook-reference"
 
-	reference { sourceDir = file("src/reference/docbook") }
+//	reference { sourceDir = file("src/reference/docbook") }
 
 	// don't publish the default jar for the root project
 	configurations.archives.artifacts.clear()
@@ -260,54 +266,35 @@ configure(rootProject) {
 		destinationDir = new File(buildDir, "api")
 	}
 
-	task docsZip(type: Zip) {
-		group = "Distribution"
-		classifier = "docs"
-		description = "Builds -${classifier} archive containing api and reference " +
-				"for deployment at docs.spring.io/spring-sync/docs."
+// Task for creating the distro zip
 
-		from("src/dist") { include "changelog.txt" }
+task dist(type: Zip) {
+    dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' || task.name.endsWith('Zip') || task.name.endsWith('generatePom') }
+    classifier = 'dist'
 
-		from (api) { into "api" }
+    evaluationDependsOn(':docs')
+    evaluationDependsOn(':docs:manual')
 
-		from (reference) { into "reference" }
-	}
+    def zipRootDir = "${project.name}-$version"
+    into(zipRootDir) {
+        from(rootDir) {
+            include '*.txt'
+        }
+        into('docs') {
+            with(project(':docs').apiSpec)
+            with(project(':docs:manual').spec)
+        }
+        into('dist') {
+            from coreModuleProjects.collect {project -> project.libsDir }
+        }
+    }
+}
 
-	task distZip(type: Zip, dependsOn: docsZip) {
-		group = "Distribution"
-		classifier = "dist"
-		description = "Builds -${classifier} archive, containing all jars and docs, " +
-				"suitable for community download page."
-
-		def baseDir = "${project.name}-${project.version}";
-
-		from("src/dist") {
-			include "readme.txt"
-			include "license.txt"
-			include "notice.txt"
-			into "${baseDir}"
-			expand(copyright: new Date().format("yyyy"), version: project.version)
-		}
-
-		from(zipTree(docsZip.archivePath)) { into "${baseDir}/docs" }
-
-		subprojects.each { subproject ->
-			into ("${baseDir}/libs") {
-				from subproject.jar
-				if (subproject.tasks.findByPath("sourcesJar")) {
-					from subproject.sourcesJar
-				}
-				if (subproject.tasks.findByPath("javadocJar")) {
-					from subproject.javadocJar
-				}
-			}
-		}
-	}
-
-	artifacts {
-		archives docsZip
-		archives distZip
-	}
+artifacts {
+    archives dist
+    archives project(':docs').docsZip
+    archives project(':docs').schemaZip
+}    
 
 	task wrapper(type: Wrapper) {
 		gradleVersion = "1.12"

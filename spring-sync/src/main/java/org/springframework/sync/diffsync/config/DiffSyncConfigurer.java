@@ -29,7 +29,7 @@ public interface DiffSyncConfigurer {
 
 	/**
 	 * Override to add {@link PersistenceCallback}s.
-	 * @param registry
+	 * @param registry a {@link PersistenceCallbackRegistry} to which {@link PersistenceCallback}s may be registered
 	 */
 	void addPersistenceCallbacks(PersistenceCallbackRegistry registry);
 	

@@ -151,6 +151,8 @@ public abstract class PatchOperation {
 	/**
 	 * Performs late-value evaluation on the operation value if the value is a {@link LateObjectEvaluator}.
 	 * @param targetObject the target object, used as assistance in determining the evaluated object's type.
+	 * @param entityType the entityType
+	 * @param <T> the entity type
 	 * @return the result of late-value evaluation if the value is a {@link LateObjectEvaluator}; the value itself otherwise.
 	 */
 	protected <T> Object evaluateValueFromTarget(Object targetObject, Class<T> entityType) {
