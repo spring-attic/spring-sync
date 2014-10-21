@@ -30,8 +30,8 @@ public class DiffSyncConfigurerAdapter implements DiffSyncConfigurer {
 	}
 	
 	@Override
-	public ShadowStore getShadowStore() {
-		return new MapBasedShadowStore();
+	public ShadowStore getShadowStore(String remoteNodeId) {
+		return new MapBasedShadowStore(remoteNodeId);
 	}
 	
 }

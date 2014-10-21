@@ -34,9 +34,11 @@ public class GemfireShadowStore extends AbstractShadowStore implements Disposabl
 
 	/**
 	 * Constructs a GemFire-based {@link ShadowStore}.
+	 * @param remoteNodeId the unique id of the node that this shadow store is being created for.
 	 * @param gemfireTemplate a {@link GemfireOperations} that will be used to store shadow copies.
 	 */
-	public GemfireShadowStore(GemfireOperations gemfireTemplate) {
+	public GemfireShadowStore(String remoteNodeId, GemfireOperations gemfireTemplate) {
+		super(remoteNodeId);
 		this.gemfireTemplate = gemfireTemplate;
 	}
 	

@@ -35,9 +35,10 @@ public interface DiffSyncConfigurer {
 	
 	/**
 	 * Override to set the {@link ShadowStore}.
-	 * For convenience, a {@link MapBasedShadowStore} will be the default, but should not be used in production applications. 
+	 * For convenience, a {@link MapBasedShadowStore} will be the default, but should not be used in production applications.
+	 * @param remoteNodeId a unique identifier of the remote node that this shadow store is being created for. 
 	 * @return a {@link ShadowStore}
 	 */
-	ShadowStore getShadowStore();
+	ShadowStore getShadowStore(String remoteNodeId);
 	
 }

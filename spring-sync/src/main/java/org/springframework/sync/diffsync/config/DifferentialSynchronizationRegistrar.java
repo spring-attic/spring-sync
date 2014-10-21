@@ -61,13 +61,12 @@ public class DifferentialSynchronizationRegistrar extends WebMvcConfigurerAdapte
 	@Scope(value="session", proxyMode=ScopedProxyMode.TARGET_CLASS)
 	public ShadowStore shadowStore(HttpSession session) {
 		for (DiffSyncConfigurer diffSyncConfigurer : diffSyncConfigurers) {
-			ShadowStore shadowStore = diffSyncConfigurer.getShadowStore();
+			ShadowStore shadowStore = diffSyncConfigurer.getShadowStore(session.getId());
 			if (shadowStore != null) {
-				shadowStore.setRemoteNodeId(session.getId());
 				return shadowStore;
 			}
 		}
-		return new MapBasedShadowStore();
+		return new MapBasedShadowStore(session.getId());
 	}
 	
 	@Bean

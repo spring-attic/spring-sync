@@ -19,11 +19,14 @@ public abstract class AbstractShadowStore implements ShadowStore {
 
 	private String nodeId;
 
-	@Override
-	public void setRemoteNodeId(String nodeId) {
-		this.nodeId = nodeId;
+	/**
+	 * Shadow store constructor
+	 * @param remoteNodeId the unique id of the node that this shadow store is being created for.
+	 */
+	public AbstractShadowStore(String remoteNodeId) {
+		this.nodeId = remoteNodeId;
 	}
-
+	
 	/**
 	 * Produces a node-specific key by prefixing the key with the remote node ID.
 	 * @param key the resource key

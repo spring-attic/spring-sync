@@ -417,7 +417,7 @@ public class DiffSyncControllerTest {
 	}
 
 	private MockMvc mockMvc(TodoRepository todoRepository) {
-		ShadowStore shadowStore = new MapBasedShadowStore();
+		ShadowStore shadowStore = new MapBasedShadowStore("x");
 		
 		PersistenceCallbackRegistry callbackRegistry = new PersistenceCallbackRegistry();
 		callbackRegistry.addPersistenceCallback(new JpaPersistenceCallback<Todo>(todoRepository, Todo.class));

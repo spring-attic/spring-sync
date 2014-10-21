@@ -35,9 +35,11 @@ public class RedisShadowStore extends AbstractShadowStore implements DisposableB
 
 	/**
 	 * Constructs a Redis-based {@link ShadowStore}.
+	 * @param remoteNodeId the unique id of the node that this shadow store is being created for.
 	 * @param redisTemplate a {@link RedisOperations} that will be used to store shadow copies.
 	 */
-	public RedisShadowStore(RedisOperations<String, Object> redisTemplate) {
+	public RedisShadowStore(String remoteNodeId, RedisOperations<String, Object> redisTemplate) {
+		super(remoteNodeId);
 		this.redisTemplate = redisTemplate;
 	}
 

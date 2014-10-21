@@ -36,11 +36,4 @@ public interface ShadowStore {
 	 */
 	Object getShadow(String key);
 
-	/**
-	 * Sets a unique identifier for the remote node.
-	 * Concatenated with the key to produce a unique, node-specific key for stored shadows.
-	 * @param nodeId the unique identifier of the remote node for which this shadow store maintains shadows
-	 */
-	void setRemoteNodeId(String nodeId);
-
 }
