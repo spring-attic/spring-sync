@@ -14,6 +14,7 @@ buildscript {
 
 // Set up different subproject lists for individual configuration
 ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'manual' }
+ext.docProjects = subprojects.findAll { project -> project.name == 'docs' || project.name == 'manual' }
 ext.coreModuleProjects = javaProjects
 
 configure(allprojects) {
@@ -300,6 +301,10 @@ artifacts {
 		gradleVersion = "1.12"
 	}
 
+}
+
+configure(docProjects) {
+    tasks.findByPath("artifactoryPublish")?.enabled = false
 }
 
 task updateRootDocs << {
