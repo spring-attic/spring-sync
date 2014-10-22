@@ -1,2 +1,11 @@
 Spring Sync Changelog
 =======================
+
+1.0.0.M1 - October 22, 2014
+----------------------------
+New Features
+ * Patch abstraction for producing and applying changes to Java objects.
+ * Support for reading and writing patches as JSON Patch.
+ * Differential synchronization for application of patches.
+ * DiffSyncController for HTTP requests of type "application/json-patch+json"
+   and applying differential synchronization.
