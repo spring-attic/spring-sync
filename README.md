@@ -1,4 +1,4 @@
-spring-sync
+Spring Sync
 ============
 
-Experimental project to introduce JSON Patch and Differential Synchronization to Spring
+Enables efficient communication and data synchronization between clients and Spring server applications.
