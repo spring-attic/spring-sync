@@ -1,7 +1,27 @@
-.gradle
+# Operating System files
+
+.DS_Store
+Thumbs.db
+
+# build files
+
+.gradle/
 build/
-/bin/
+target/
+bin/
+gen/
+out/
+
+# Eclipse files
+
 .classpath
 .project
 .settings/
-.springBeans
+
+# IDEA files
+
+*.idea/
+*.iml
+*.ipr
+*.iws
+*.sw?
