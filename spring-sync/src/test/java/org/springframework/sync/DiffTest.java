@@ -59,11 +59,11 @@ public class DiffTest {
 		PatchOperation op = ops.get(0);
 		assertEquals("test", op.getOp());
 		assertEquals("/complete", op.getPath());
-		assertFalse((boolean) op.getValue());
+		assertFalse((Boolean) op.getValue());
 		op = ops.get(1);
 		assertEquals("replace", op.getOp());
 		assertEquals("/complete", op.getPath());
-		assertTrue((boolean) op.getValue());
+		assertTrue((Boolean) op.getValue());
 	}
 	
 	@Test
