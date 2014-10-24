@@ -32,7 +32,7 @@ import org.springframework.sync.Patch;
 import org.springframework.sync.PatchException;
 import org.springframework.sync.Todo;
 import org.springframework.sync.TodoRepository;
-import org.springframework.sync.json.JsonPatchMaker;
+import org.springframework.sync.json.JsonPatchPatchSerializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -395,7 +395,7 @@ public class DiffSyncTest {
 	}
 	
 	private Patch readJsonPatchFromResource(String resource) throws IOException, JsonProcessingException { 
-		return new JsonPatchMaker().fromJsonNode(OBJECT_MAPPER.readTree(resource(resource)));
+		return new JsonPatchPatchSerializer().createPatchFrom(OBJECT_MAPPER.readTree(resource(resource)));
 	}
 
 	private String resource(String name) throws IOException {

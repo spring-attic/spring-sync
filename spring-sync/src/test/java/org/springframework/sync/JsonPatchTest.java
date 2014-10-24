@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.sync.json.JsonPatchMaker;
+import org.springframework.sync.json.JsonPatchPatchSerializer;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -116,7 +116,7 @@ public class JsonPatchTest {
 		ClassPathResource resource = new ClassPathResource(jsonPatchFile);
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node = mapper.readValue(resource.getInputStream(), JsonNode.class);
-		Patch patch = new JsonPatchMaker().fromJsonNode(node);
+		Patch patch = new JsonPatchPatchSerializer().createPatchFrom(node);
 		return patch;
 	}
 	
