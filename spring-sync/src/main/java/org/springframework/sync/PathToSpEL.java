@@ -15,7 +15,7 @@
  */
 package org.springframework.sync;
 
-import java.util.Arrays;
+import java.lang.reflect.Array;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -55,7 +55,7 @@ public class PathToSpEL {
 	 * @return an {@link Expression} targeting the parent of the object specifed by path.
 	 */
 	public static Expression pathToParentExpression(String path) {
-		return spelToExpression(pathNodesToSpEL(Arrays.copyOf(path.split("\\/"), path.split("\\/").length - 1)));
+		return spelToExpression(pathNodesToSpEL(copyOf(path.split("\\/"), path.split("\\/").length - 1)));
 	}
 
 	// private helpers
@@ -94,6 +94,21 @@ public class PathToSpEL {
 			spel = "#this";
 		}
 		return spel;		
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> T[] copyOf(T[] original, int newLength) {
+		return (T[]) copyOf(original, newLength, original.getClass());
+	}
+
+	// reproduces Arrays.copyOf because that API is missing on Android 2.2
+	private static <T, U> T[] copyOf(U[] original, int newLength,
+			Class<? extends T[]> newType) {
+		@SuppressWarnings("unchecked")
+		T[] copy = ((Object) newType == (Object) Object[].class) ? (T[]) new Object[newLength]
+				: (T[]) Array.newInstance(newType.getComponentType(), newLength);
+		System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+		return copy;
 	}
 
 }
