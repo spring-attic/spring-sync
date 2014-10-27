@@ -61,18 +61,18 @@ public class DiffSyncController {
 	@RequestMapping(
 			value="${spring.diffsync.path:}/{resource}",
 			method=RequestMethod.PATCH)
-	public Patch patch(@PathVariable("resource") String resource, @RequestBody Patch patch, HttpSession session) throws PatchException {
+	public Patch patch(@PathVariable("resource") String resource, @RequestBody Patch patch) throws PatchException {
 		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);		
-		return applyAndDiff(patch, (List) persistenceCallback.findAll(), persistenceCallback);
+		return applyAndDiffAgainstList(patch, (List) persistenceCallback.findAll(), persistenceCallback);
 	}
 
 	@RequestMapping(
 			value="${spring.diffsync.path:}/{resource}/{id}",
 			method=RequestMethod.PATCH)
-	public Patch patch(@PathVariable("resource") String resource, @PathVariable("id") String id, @RequestBody Patch patch, HttpSession session) throws PatchException {
+	public Patch patch(@PathVariable("resource") String resource, @PathVariable("id") String id, @RequestBody Patch patch) throws PatchException {
 		PersistenceCallback<?> persistenceCallback = callbackRegistry.findPersistenceCallback(resource);		
 		Object findOne = persistenceCallback.findOne(id);
-		return applyAndDiff2(patch, findOne, persistenceCallback);
+		return applyAndDiff(patch, findOne, persistenceCallback);
 	}
 
 	
@@ -82,19 +82,15 @@ public class DiffSyncController {
 	}
 	
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> Patch applyAndDiff2(Patch patch, Object target, PersistenceCallback<T> persistenceCallback) {
-		if (target instanceof List) {
-			return applyAndDiff(patch, (List) target, persistenceCallback);
-		}
+	@SuppressWarnings("unchecked")
+	private <T> Patch applyAndDiff(Patch patch, Object target, PersistenceCallback<T> persistenceCallback) {
 		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
-
 		T patched = sync.apply(patch, (T) target);
 		persistenceCallback.persistChange(patched);
 		return sync.diff(patched);
 	}
 	
-	private <T> Patch applyAndDiff(Patch patch, List<T> target, PersistenceCallback<T> persistenceCallback) {
+	private <T> Patch applyAndDiffAgainstList(Patch patch, List<T> target, PersistenceCallback<T> persistenceCallback) {
 		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
 		
 		List<T> patched = sync.apply(patch, target);
@@ -119,4 +115,5 @@ public class DiffSyncController {
 		
 		return sync.diff(patched);
 	}
+
 }
