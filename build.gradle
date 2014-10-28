@@ -3,9 +3,8 @@ buildscript {
 		maven { url "http://repo.spring.io/plugins-release" }
 	}
 	dependencies {
-		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.6")
+		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
 		classpath("org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE")
-		classpath("org.springframework.build.gradle:docbook-reference-plugin:0.2.8")
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:0.7.0')
 		classpath('org.asciidoctor:asciidoctor-java-integration:0.1.4.preview.1')
 		classpath("me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1")
@@ -20,13 +19,23 @@ ext.coreModuleProjects = javaProjects
 configure(allprojects) {
 	group = "org.springframework.sync"
 
-	ext.springVersion          = "4.0.0.RELEASE"
-	ext.springReleaseVersion   = "latest.release"
-	ext.springSnapshotVersion  = "latest.integration"
-	ext.junitVersion           = "4.11"
-	ext.easymockVersion        = "3.2"
-	ext.hamcrestVersion        = "1.3"
-	ext.servletApiVersion      = "3.0.1"
+	ext.springVersion            = "4.0.7.RELEASE"
+	ext.springReleaseVersion     = "latest.release"
+	ext.springSnapshotVersion    = "latest.integration"
+	ext.springAndroidVersion     = "2.0.0.BUILD-SNAPSHOT"
+	ext.commonsLangVersion       = "2.6"
+	ext.diffUtilsVersion         = "1.2.1"
+	ext.slf4jVersion             = "1.7.6"
+	ext.jacksonVersion           = "2.4.3"
+	ext.springDataRedisVersion   = "1.4.0.RELEASE"
+	ext.springDataGemfireVersion = "1.5.0.RELEASE"
+	ext.springDataCommonsVersion = "1.9.0.RELEASE"
+	ext.springDataJpaVersion     = "1.7.0.RELEASE"
+	ext.jsonPathVersion          = "0.8.1"
+	ext.junitVersion             = "4.11"
+	ext.easymockVersion          = "3.2"
+	ext.hamcrestVersion          = "1.3"
+	ext.servletApiVersion        = "3.0.1"
 
 	apply plugin: "propdeps"
 	apply plugin: "propdeps-eclipse"
@@ -53,8 +62,8 @@ configure(allprojects) {
 		targetCompatibility=1.6
 	}
 	compileTestJava {
-		sourceCompatibility=1.7
-		targetCompatibility=1.7
+		sourceCompatibility=1.8
+		targetCompatibility=1.8
 	}
 
 	[compileJava, compileTestJava]*.options*.compilerArgs = [
@@ -212,40 +221,57 @@ configure(subprojects) { subproject ->
 	}
 }
 
-project('spring-sync') {
+project('spring-sync-core') {
 	description = "Spring Differential Synchronization and JSON Patch"
 	dependencies {
-		compile "org.springframework:spring-web:4.0.4.RELEASE",
-				"commons-lang:commons-lang:2.6",
-				"com.googlecode.java-diff-utils:diffutils:1.2.1",
-				"org.slf4j:slf4j-api:1.7.6"
-		
-		// TODO - optional
-		optional "org.springframework:spring-webmvc:4.0.4.RELEASE",
-				 "com.fasterxml.jackson.core:jackson-databind:2.4.1",
-				 "javax.servlet:javax.servlet-api:3.1.0",
-				 "org.springframework.data:spring-data-redis:1.4.0.RELEASE",
-				 "org.springframework.data:spring-data-gemfire:1.5.0.RELEASE"
-		
-		// test
+		compile("org.springframework:spring-core:${springVersion}")
+		compile("org.springframework:spring-expression:${springVersion}")
+		compile("commons-lang:commons-lang:${commonsLangVersion}")
+		compile("com.googlecode.java-diff-utils:diffutils:${diffUtilsVersion}")
+		compile("org.slf4j:slf4j-api:${slf4jVersion}")
+		optional("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+		testCompile("com.jayway.jsonpath:json-path:${jsonPathVersion}")
+		testCompile("com.jayway.jsonpath:json-path-assert:${jsonPathVersion}")
+	}
+}
+
+project('spring-sync-core-android') {
+	description = "Spring Differential Synchronization and JSON Patch for Android"
+	// creates a separate artifact for Android which builds against different dependencies
+	sourceSets.main.java.srcDirs(project(":spring-sync-core").sourceSets.main.java)
+	dependencies {
+		compile("org.springframework.android:spring-android-core:${springAndroidVersion}")
+		compile("org.springframework:spring-expression:3.2.11.RELEASE") {
+			// exclude in favor of Spring for Android Core
+			exclude group: "org.springframework", module: "spring-core"
+		}
+		compile("commons-lang:commons-lang:${commonsLangVersion}")
+		compile("com.googlecode.java-diff-utils:diffutils:${diffUtilsVersion}")
+		optional("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+	}
+}
+
+project('spring-sync-web') {
+	description = "Spring Differential Synchronization and JSON Patch"
+	dependencies {
+		compile(project(":spring-sync-core"))
+		compile("org.springframework:spring-webmvc:${springVersion}")
+		optional("javax.servlet:javax.servlet-api:${servletApiVersion}")
+		optional("org.springframework.data:spring-data-redis:${springDataRedisVersion}")
+		optional("org.springframework.data:spring-data-gemfire:${springDataGemfireVersion}")
+		optional("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
 		testCompile("org.hibernate:hibernate-entitymanager:4.3.5.Final")
 		testCompile("com.h2database:h2:1.4.180")
-		testCompile("org.springframework.data:spring-data-jpa:1.6.2.RELEASE")
-		testCompile("org.springframework:spring-orm:4.0.4.RELEASE")
-		testCompile("junit:junit:4.11")
-		testCompile("org.springframework:spring-test:4.0.4.RELEASE")
-		testCompile("com.jayway.jsonpath:json-path:0.8.1")
-		testCompile("com.jayway.jsonpath:json-path-assert:0.8.1")
-		testCompile("org.springframework.data:spring-data-commons:1.8.2.RELEASE")
+		testCompile("org.springframework.data:spring-data-commons:${springDataCommonsVersion}")
+		testCompile("org.springframework.data:spring-data-jpa:${springDataJpaVersion}")
+		testCompile("org.springframework:spring-orm:${springVersion}")
+		testCompile("com.jayway.jsonpath:json-path:${jsonPathVersion}")
+		testCompile("com.jayway.jsonpath:json-path-assert:${jsonPathVersion}")
 	}
 }
 
 configure(rootProject) {
 	description = "Spring Sync"
-
-//	apply plugin: "docbook-reference"
-
-//	reference { sourceDir = file("src/reference/docbook") }
 
 	// don't publish the default jar for the root project
 	configurations.archives.artifacts.clear()
@@ -313,22 +339,3 @@ artifacts {
 	}
 
 }
-
-task updateRootDocs << {
-	copy {
-		from "src/dist"
-		into "${rootProject.projectDir}"
-		include "notice.txt"
-		expand(copyright: new Date().format("yyyy"), version: project.version)
-		rename { filename -> "NOTICE" }
-	}
-
-	copy {
-		from "src/dist"
-		into "${rootProject.projectDir}"
-		include "license.txt"
-		rename { filename -> "LICENSE" }
-	}
-}
-
-build.dependsOn("updateRootDocs")
