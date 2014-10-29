@@ -4,4 +4,6 @@ include 'docs', 'docs:manual'
 def docs = findProject(':docs')
 docs.buildFileName = 'docs.gradle'
 
-include "spring-sync"
+include "spring-sync-core"
+include "spring-sync-core-android"
+include "spring-sync-web"

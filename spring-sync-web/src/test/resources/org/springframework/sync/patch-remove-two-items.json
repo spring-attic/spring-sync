@@ -1,0 +1,1 @@
+[{"op":"test","path":"/1","value":{"id":2,"description":"B","complete":false}},{"op":"remove","path":"/1"},{"op":"test","path":"/1","value":{"id":3,"description":"C","complete":false}},{"op":"remove","path":"/1"}]
