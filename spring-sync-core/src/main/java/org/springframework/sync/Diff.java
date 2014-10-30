@@ -18,6 +18,8 @@ package org.springframework.sync;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.util.ObjectUtils;
@@ -89,7 +91,6 @@ public class Diff {
 	}
 	
 	private static void diffNonList(List<PatchOperation> operations, String path, Object original, Object modified) throws IOException, IllegalAccessException {
-		
 		if (!ObjectUtils.nullSafeEquals(original, modified)) {
 			if (modified == null) {
 				operations.add(new RemoveOperation(path));
@@ -111,13 +112,22 @@ public class Diff {
 			Field[] fields = originalType.getDeclaredFields();
 			for (Field field : fields) {
 				field.setAccessible(true);
+				Class<?> fieldType = field.getType();
 				Object origValue = field.get(original);
 				Object modValue = field.get(modified);
-				diffNonList(operations, path+"/"+field.getName(), origValue, modValue);
+				if ((fieldType.isArray() || Collection.class.isAssignableFrom(fieldType)) && origValue != null && modValue != null) {
+					if (Collection.class.isAssignableFrom(fieldType)) {
+						diffList(operations, path + "/" + field.getName(), (List<?>) origValue, (List<?>) modValue);
+					}
+					else if (fieldType.isArray()) {
+						diffList(operations, path + "/" + field.getName(), Arrays.asList((Object[]) origValue), Arrays.asList((Object[]) modValue));
+					}
+				} else {
+					diffNonList(operations, path+"/"+field.getName(), origValue, modValue);
+				}
 			}
 			
 		}
-		
 	}
 
 	private static boolean isPrimitive(Object o) {

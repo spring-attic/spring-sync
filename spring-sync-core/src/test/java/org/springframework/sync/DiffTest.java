@@ -485,6 +485,173 @@ public class DiffTest {
 		assertEquals("/0", op.getPath());
 	}
 
+	@Test
+	public void addEntryToListProperty() throws Exception {
+		ArrayList<Todo> todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", false));
+		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(3L, "C", false));
+		TodoList before = new TodoList();
+		before.setTodos(todos);
+		
+		todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", false));
+		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(3L, "C", false));
+		todos.add(new Todo(4L, "D", false));
+		TodoList after = new TodoList();
+		after.setTodos(todos);
+		
+		Patch diff = Diff.diff(before, after);
+		List<PatchOperation> operations = diff.getOperations();
+		assertEquals(1, diff.size());
+		assertEquals("add", operations.get(0).getOp());
+		assertEquals("/todos/3", operations.get(0).getPath());
+		assertEquals(new Todo(4L, "D", false), operations.get(0).getValue());
+	}
+
+	@Test
+	public void removeEntryFromListProperty() throws Exception {
+		ArrayList<Todo> todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", false));
+		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(3L, "C", false));
+		TodoList before = new TodoList();
+		before.setTodos(todos);
+		
+		todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", false));
+		todos.add(new Todo(3L, "C", false));
+		TodoList after = new TodoList();
+		after.setTodos(todos);
+		
+		Patch diff = Diff.diff(before, after);
+		List<PatchOperation> operations = diff.getOperations();
+		assertEquals(2, diff.size());
+		assertEquals("test", operations.get(0).getOp());
+		assertEquals("/todos/1", operations.get(0).getPath());
+		assertEquals(new Todo(2L, "B", false), operations.get(0).getValue());
+		assertEquals("remove", operations.get(1).getOp());
+		assertEquals("/todos/1", operations.get(1).getPath());
+	}
+
+	@Test
+	public void editEntryInListProperty() throws Exception {
+		ArrayList<Todo> todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", false));
+		todos.add(new Todo(2L, "B", false));
+		todos.add(new Todo(3L, "C", false));
+		TodoList before = new TodoList();
+		before.setTodos(todos);
+		
+		todos = new ArrayList<Todo>();
+		todos.add(new Todo(1L, "A", false));
+		todos.add(new Todo(2L, "BBB", true));
+		todos.add(new Todo(3L, "C", false));
+		TodoList after = new TodoList();
+		after.setTodos(todos);
+		
+		Patch diff = Diff.diff(before, after);
+		List<PatchOperation> operations = diff.getOperations();
+		assertEquals(4, diff.size());
+		assertEquals("test", operations.get(0).getOp());
+		assertEquals("/todos/1/description", operations.get(0).getPath());
+		assertEquals("B", operations.get(0).getValue());
+		assertEquals("replace", operations.get(1).getOp());
+		assertEquals("/todos/1/description", operations.get(1).getPath());
+		assertEquals("BBB", operations.get(1).getValue());
+		assertEquals("test", operations.get(2).getOp());
+		assertEquals("/todos/1/complete", operations.get(2).getPath());
+		assertEquals(false, operations.get(2).getValue());
+		assertEquals("replace", operations.get(3).getOp());
+		assertEquals("/todos/1/complete", operations.get(3).getPath());
+		assertEquals(true, operations.get(3).getValue());
+	}
+
+	@Test
+	public void addEntryToArrayProperty() throws Exception {
+		Todo[] todos = new Todo[3];
+		todos[0] = new Todo(1L, "A", false);
+		todos[1] = new Todo(2L, "B", false);
+		todos[2] = new Todo(3L, "C", false);
+		TodoList before = new TodoList();
+		before.setTodoArray(todos);
+		
+		todos = new Todo[4];
+		todos[0] = new Todo(1L, "A", false);
+		todos[1] = new Todo(2L, "B", false);
+		todos[2] = new Todo(3L, "C", false);
+		todos[3] = new Todo(4L, "D", false);
+		TodoList after = new TodoList();
+		after.setTodoArray(todos);
+		
+		Patch diff = Diff.diff(before, after);
+		List<PatchOperation> operations = diff.getOperations();
+		assertEquals(1, diff.size());
+		assertEquals("add", operations.get(0).getOp());
+		assertEquals("/todoArray/3", operations.get(0).getPath());
+		assertEquals(new Todo(4L, "D", false), operations.get(0).getValue());
+	}
+
+	@Test
+	public void removeEntryFromArrayProperty() throws Exception {
+		Todo[] todos = new Todo[3];
+		todos[0] = new Todo(1L, "A", false);
+		todos[1] = new Todo(2L, "B", false);
+		todos[2] = new Todo(3L, "C", false);
+		TodoList before = new TodoList();
+		before.setTodoArray(todos);
+		
+		todos = new Todo[2];
+		todos[0] = new Todo(1L, "A", false);
+		todos[1] = new Todo(3L, "C", false);
+		TodoList after = new TodoList();
+		after.setTodoArray(todos);
+		
+		Patch diff = Diff.diff(before, after);
+		List<PatchOperation> operations = diff.getOperations();
+		assertEquals(2, diff.size());
+		assertEquals("test", operations.get(0).getOp());
+		assertEquals("/todoArray/1", operations.get(0).getPath());
+		assertEquals(new Todo(2L, "B", false), operations.get(0).getValue());
+		assertEquals("remove", operations.get(1).getOp());
+		assertEquals("/todoArray/1", operations.get(1).getPath());
+	}
+
+	@Test
+	public void editEntryInArrayProperty() throws Exception {
+		Todo[] todos = new Todo[3];
+		todos[0] = new Todo(1L, "A", false);
+		todos[1] = new Todo(2L, "B", false);
+		todos[2] = new Todo(3L, "C", false);
+		TodoList before = new TodoList();
+		before.setTodoArray(todos);
+		
+		todos = new Todo[3];
+		todos[0] = new Todo(1L, "A", false);
+		todos[1] = new Todo(2L, "BBB", true);
+		todos[2] = new Todo(3L, "C", false);
+		TodoList after = new TodoList();
+		after.setTodoArray(todos);
+		
+		Patch diff = Diff.diff(before, after);
+		List<PatchOperation> operations = diff.getOperations();
+		assertEquals(4, diff.size());
+		assertEquals("test", operations.get(0).getOp());
+		assertEquals("/todoArray/1/description", operations.get(0).getPath());
+		assertEquals("B", operations.get(0).getValue());
+		assertEquals("replace", operations.get(1).getOp());
+		assertEquals("/todoArray/1/description", operations.get(1).getPath());
+		assertEquals("BBB", operations.get(1).getValue());
+		assertEquals("test", operations.get(2).getOp());
+		assertEquals("/todoArray/1/complete", operations.get(2).getPath());
+		assertEquals(false, operations.get(2).getValue());
+		assertEquals("replace", operations.get(3).getOp());
+		assertEquals("/todoArray/1/complete", operations.get(3).getPath());
+		assertEquals(true, operations.get(3).getValue());
+	}
+
+	
 	private List<Todo> buildTodoList() {
 		List<Todo> original = new ArrayList<Todo>();
 		original.add(new Todo(1L, "A", false));
