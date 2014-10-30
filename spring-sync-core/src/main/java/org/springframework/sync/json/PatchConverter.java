@@ -28,12 +28,22 @@ import com.fasterxml.jackson.databind.JsonNode;
  * some other JSON library's type that holds a JSON document.</p>
  * 
  * @author Craig Walls
- * @param <T> A type holding a representation of the patch. 
+ * @param <T> A type holding a representation of the patch. For example, a JsonNode if working with JSON Patch.
  */
-public interface PatchSerializer<T> {
+public interface PatchConverter<T> {
 
-	Patch createPatchFrom(T patchDocument);
+	/**
+	 * Convert a patch document representation to a {@link Patch}.
+	 * @param patchRepresentation the representation of a patch.
+	 * @return the {@link Patch} object that the document represents.
+	 */
+	Patch convert(T patchRepresentation);
 	
-	T renderPatchTo(Patch patch);
+	/**
+	 * Convert a {@link Patch} to a representation object.
+	 * @param patch the {@link Patch} to convert.
+	 * @return the patch representation object.
+	 */
+	T convert(Patch patch);
 	
 }

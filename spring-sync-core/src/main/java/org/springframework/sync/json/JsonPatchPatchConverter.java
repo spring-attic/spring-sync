@@ -40,7 +40,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Convert {@link JsonNode}s containing JSON Patch to/from {@link Patch} objects.
  * @author Craig Walls
  */
-public class JsonPatchPatchSerializer implements PatchSerializer<JsonNode> {
+public class JsonPatchPatchConverter implements PatchConverter<JsonNode> {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -49,7 +49,7 @@ public class JsonPatchPatchSerializer implements PatchSerializer<JsonNode> {
 	 * @param jsonNode a JsonNode containing the JSON Patch
 	 * @return a {@link Patch}
 	 */
-	public Patch createPatchFrom(JsonNode jsonNode) {
+	public Patch convert(JsonNode jsonNode) {
 		if (!(jsonNode instanceof ArrayNode)) {
 			throw new IllegalArgumentException("JsonNode must be an instance of ArrayNode");
 		}
@@ -91,7 +91,7 @@ public class JsonPatchPatchSerializer implements PatchSerializer<JsonNode> {
 	 * @param patch the patch
 	 * @return a {@link JsonNode} containing JSON Patch.
 	 */
-	public JsonNode renderPatchTo(Patch patch) {
+	public JsonNode convert(Patch patch) {
 		
 		List<PatchOperation> operations = patch.getOperations();
 		JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
