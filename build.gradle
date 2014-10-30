@@ -62,8 +62,8 @@ configure(allprojects) {
 		targetCompatibility=1.6
 	}
 	compileTestJava {
-		sourceCompatibility=1.8
-		targetCompatibility=1.8
+		sourceCompatibility=1.7
+		targetCompatibility=1.7
 	}
 
 	[compileJava, compileTestJava]*.options*.compilerArgs = [
