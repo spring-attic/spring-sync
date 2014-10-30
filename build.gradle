@@ -235,6 +235,17 @@ project('spring-sync-core') {
 	}
 }
 
+project('spring-sync-config') {
+	description = "Spring Sync Configuration"
+	dependencies {
+		compile(project(":spring-sync-core"))
+		compile(project(":spring-sync-web"))
+		compile("org.springframework:spring-core:${springVersion}")
+		compile("org.springframework:spring-context:${springVersion}")
+		optional("javax.servlet:javax.servlet-api:${servletApiVersion}")
+	}
+}
+
 project('spring-sync-core-android') {
 	description = "Spring Differential Synchronization and JSON Patch for Android"
 	// creates a separate artifact for Android which builds against different dependencies
