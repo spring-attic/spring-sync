@@ -46,14 +46,14 @@ public class GemfireShadowStore extends AbstractShadowStore implements Disposabl
 	}
 	
 	@Override
-	public void putShadow(String key, Shadow shadow) {
+	public void putShadow(String key, Shadow<?> shadow) {
 		String nodeKey = getNodeSpecificKey(key);
 		gemfireTemplate.put(nodeKey, shadow);
 		keys.add(nodeKey);
 	}
 
 	@Override
-	public Shadow getShadow(String key) {
+	public Shadow<?> getShadow(String key) {
 		return gemfireTemplate.get(getNodeSpecificKey(key));
 	}
 

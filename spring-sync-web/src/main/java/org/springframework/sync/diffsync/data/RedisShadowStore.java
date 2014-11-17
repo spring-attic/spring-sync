@@ -32,7 +32,7 @@ import org.springframework.sync.diffsync.ShadowStore;
  */
 public class RedisShadowStore extends AbstractShadowStore implements DisposableBean {
 
-	private RedisOperations<String, Shadow> redisTemplate;
+	private RedisOperations<String, Shadow<?>> redisTemplate;
 	
 	private List<String> keys = new ArrayList<String>();
 
@@ -41,20 +41,20 @@ public class RedisShadowStore extends AbstractShadowStore implements DisposableB
 	 * @param remoteNodeId the unique id of the node that this shadow store is being created for.
 	 * @param redisTemplate a {@link RedisOperations} that will be used to store shadow copies.
 	 */
-	public RedisShadowStore(String remoteNodeId, RedisOperations<String, Shadow> redisTemplate) {
+	public RedisShadowStore(String remoteNodeId, RedisOperations<String, Shadow<?>> redisTemplate) {
 		super(remoteNodeId);
 		this.redisTemplate = redisTemplate;
 	}
 
 	@Override
-	public void putShadow(String key, Shadow shadow) {
+	public void putShadow(String key, Shadow<?> shadow) {
 		String nodeKey = getNodeSpecificKey(key);
 		redisTemplate.opsForValue().set(nodeKey, shadow);
 		keys.add(nodeKey);
 	}
 
 	@Override
-	public Shadow getShadow(String key) {
+	public Shadow<?> getShadow(String key) {
 		return redisTemplate.opsForValue().get(getNodeSpecificKey(key));
 	}
 

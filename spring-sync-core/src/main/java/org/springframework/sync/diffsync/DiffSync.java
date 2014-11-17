@@ -76,7 +76,7 @@ public class DiffSync<T> {
 	 * The target object will remain unchanged and a patched copy will be returned.
 	 * 
 	 * @param target An object to apply a patch to. Will remain unchanged.
-	 * @param patch The patches to be applied.
+	 * @param patches The patches to be applied.
 	 * @return a patched copy of the target.
 	 */
 	public T apply(T target, Patch...patches) {
@@ -109,7 +109,7 @@ public class DiffSync<T> {
 		}
 
 		if (shouldApplyPatch(patch, shadow)) {
-			shadow = new Shadow<T>(patch.apply((T) shadow.getResource(), entityType), shadow.getServerVersion(), shadow.getClientVersion() + 1);
+			shadow = new Shadow<T>(patch.apply(shadow.getResource(), entityType), shadow.getServerVersion(), shadow.getClientVersion() + 1);
 			Shadow<T> backupShadow = new Shadow<T>(shadow.getResource(), shadow.getServerVersion(), shadow.getClientVersion());
 			putShadow(shadow);
 			putBackupShadow(backupShadow);
@@ -122,7 +122,7 @@ public class DiffSync<T> {
 	 * Applies one or more patches to a target list and the target list's shadow, per the Differential Synchronization algorithm.
 	 * The target object will remain unchanged and a patched copy will be returned.
 	 * 
-	 * @param patch The patch to be applied.
+	 * @param patches The patch to be applied.
 	 * @param target A list to apply a patch to. Will remain unchanged.
 	 * @return a patched copy of the target.
 	 */
@@ -156,7 +156,7 @@ public class DiffSync<T> {
 		}
 		
 		if (shouldApplyPatch(patch, shadow)) {
-			shadow = new Shadow<List<T>>(patch.apply((List<T>) shadow.getResource(), entityType), shadow.getServerVersion(), shadow.getClientVersion() + 1);
+			shadow = new Shadow<List<T>>(patch.apply(shadow.getResource(), entityType), shadow.getServerVersion(), shadow.getClientVersion() + 1);
 			Shadow<List<T>> backupShadow = new Shadow<List<T>>(shadow.getResource(), shadow.getServerVersion(), shadow.getClientVersion());
 			putListShadow(shadow);
 			putBackupListShadow(backupShadow);
@@ -208,7 +208,7 @@ public class DiffSync<T> {
 	@SuppressWarnings("unchecked")
 	private Shadow<T> getShadow(T target) {
 		String shadowStoreKey = getShadowStoreKey(target);
-		Shadow<T> shadow = shadowStore.getShadow(shadowStoreKey);
+		Shadow<T> shadow = (Shadow<T>) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
 			shadow = new Shadow<T>(DeepCloneUtils.deepClone(target), 0, 0); // OKAY
 		}
@@ -218,7 +218,7 @@ public class DiffSync<T> {
 	@SuppressWarnings("unchecked")
 	private Shadow<T> getBackupShadow(T target) {
 		String shadowStoreKey = getShadowStoreKey(target) + "_backup";
-		Shadow<T> shadow = shadowStore.getShadow(shadowStoreKey);
+		Shadow<T> shadow = (Shadow<T>) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
 			shadow = new Shadow<T>(DeepCloneUtils.deepClone(target), 0, 0); // OKAY
 		}
@@ -248,7 +248,7 @@ public class DiffSync<T> {
 	@SuppressWarnings("unchecked")
 	private Shadow<List<T>> getShadow(List<T> target) {
 		String shadowStoreKey = getShadowStoreKey(target);
-		Shadow<List<T>> shadow = shadowStore.getShadow(shadowStoreKey);
+		Shadow<List<T>> shadow = (Shadow<List<T>>) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
 			shadow = new Shadow<List<T>>(DeepCloneUtils.deepClone(target), 0, 0); // OKAY
 		}
@@ -258,7 +258,7 @@ public class DiffSync<T> {
 	@SuppressWarnings("unchecked")
 	private Shadow<List<T>> getBackupShadow(List<T> target) {
 		String shadowStoreKey = getShadowStoreKey(target) + "_backup";
-		Shadow<List<T>> shadow = shadowStore.getShadow(shadowStoreKey);
+		Shadow<List<T>> shadow = (Shadow<List<T>>) shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
 			shadow = new Shadow<List<T>>(DeepCloneUtils.deepClone(target), 0, 0); // OKAY
 		}

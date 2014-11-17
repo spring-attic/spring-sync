@@ -26,19 +26,19 @@ import java.util.Map;
  */
 public class MapBasedShadowStore extends AbstractShadowStore {
 
-	private Map<String, Shadow> store = new HashMap<String, Shadow>();
+	private Map<String, Shadow<?>> store = new HashMap<String, Shadow<?>>();
 	
 	public MapBasedShadowStore(String remoteNodeId) {
 		super(remoteNodeId);
 	}
 	
 	@Override
-	public void putShadow(String key, Shadow shadow) {
+	public void putShadow(String key, Shadow<?> shadow) {
 		store.put(getNodeSpecificKey(key), shadow);
 	}
 
 	@Override
-	public Shadow getShadow(String key) {
+	public Shadow<?> getShadow(String key) {
 		return store.get(getNodeSpecificKey(key));
 	}
 
