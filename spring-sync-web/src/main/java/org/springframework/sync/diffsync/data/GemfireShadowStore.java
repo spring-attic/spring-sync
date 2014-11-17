@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.gemfire.GemfireOperations;
 import org.springframework.sync.diffsync.AbstractShadowStore;
+import org.springframework.sync.diffsync.Shadow;
 import org.springframework.sync.diffsync.ShadowStore;
 
 /**
@@ -45,14 +46,14 @@ public class GemfireShadowStore extends AbstractShadowStore implements Disposabl
 	}
 	
 	@Override
-	public void putShadow(String key, Object shadow) {
+	public void putShadow(String key, Shadow shadow) {
 		String nodeKey = getNodeSpecificKey(key);
 		gemfireTemplate.put(nodeKey, shadow);
 		keys.add(nodeKey);
 	}
 
 	@Override
-	public Object getShadow(String key) {
+	public Shadow getShadow(String key) {
 		return gemfireTemplate.get(getNodeSpecificKey(key));
 	}
 

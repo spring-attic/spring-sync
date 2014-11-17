@@ -27,13 +27,13 @@ public interface ShadowStore {
 	 * @param key the key to store the shadow under
 	 * @param shadow the shadow copy
 	 */
-	void putShadow(String key, Object shadow);
+	void putShadow(String key, Shadow shadow);
 	
 	/**
 	 * Retrieves a shadow copy.
 	 * @param key the key that the shadow is stored under
 	 * @return the shadow copy
 	 */
-	Object getShadow(String key);
+	Shadow getShadow(String key);
 
 }

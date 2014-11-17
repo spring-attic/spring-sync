@@ -71,6 +71,21 @@ public class DiffSync<T> {
 		this.entityType = entityType;
 	}
 	
+	/**
+	 * Applies one or more patches to a target object and the target object's shadow, per the Differential Synchronization algorithm.
+	 * The target object will remain unchanged and a patched copy will be returned.
+	 * 
+	 * @param target An object to apply a patch to. Will remain unchanged.
+	 * @param patch The patches to be applied.
+	 * @return a patched copy of the target.
+	 */
+	public T apply(T target, Patch...patches) {
+		T result = target;
+		for (Patch patch : patches) {
+			result = apply(patch, result);
+		}
+		return result;
+	}
 	
 	/**
 	 * Applies a patch to a target object and the target object's shadow, per the Differential Synchronization algorithm.
@@ -84,14 +99,41 @@ public class DiffSync<T> {
 		if (patch.size() == 0) {
 			return target;
 		}
-		
-		T shadow = getShadow(target);
-		shadow = patch.apply(shadow, entityType);
-		putShadow(shadow);
+		Shadow<T> shadow = getShadow(target);
+		if (patch instanceof VersionedPatch) {
+			VersionedPatch versionedPatch = (VersionedPatch) patch;
+			if (versionedPatch.getServerVersion() < shadow.getServerVersion()) { // e.g., if (patch.serverVersion < shadow.serverVersion)
+				shadow = getBackupShadow(target);
+				putShadow(shadow);
+			}
+		}
 
-		return patch.apply(DeepCloneUtils.deepClone(target), entityType);
+		if (shouldApplyPatch(patch, shadow)) {
+			shadow = new Shadow<T>(patch.apply((T) shadow.getResource(), entityType), shadow.getServerVersion(), shadow.getClientVersion() + 1);
+			Shadow<T> backupShadow = new Shadow<T>(shadow.getResource(), shadow.getServerVersion(), shadow.getClientVersion());
+			putShadow(shadow);
+			putBackupShadow(backupShadow);
+			return patch.apply(DeepCloneUtils.deepClone(target), entityType);
+		}
+		return target;
 	}
 	
+	/**
+	 * Applies one or more patches to a target list and the target list's shadow, per the Differential Synchronization algorithm.
+	 * The target object will remain unchanged and a patched copy will be returned.
+	 * 
+	 * @param patch The patch to be applied.
+	 * @param target A list to apply a patch to. Will remain unchanged.
+	 * @return a patched copy of the target.
+	 */
+	public List<T> apply(List<T> target, Patch...patches) {
+		List<T> result = target;
+		for (Patch patch : patches) {
+			result = apply(patch, result);
+		}
+		return result;
+	}
+
 	/**
 	 * Applies a patch to a target list and the target list's shadow, per the Differential Synchronization algorithm.
 	 * The target object will remain unchanged and a patched copy will be returned.
@@ -104,80 +146,131 @@ public class DiffSync<T> {
 		if (patch.size() == 0) {
 			return target;
 		}
+		Shadow<List<T>> shadow = getShadow(target);
+		if (patch instanceof VersionedPatch) {
+			VersionedPatch versionedPatch = (VersionedPatch) patch;
+			if (versionedPatch.getServerVersion() < shadow.getServerVersion()) {
+				shadow = getBackupShadow(target);
+				putListShadow(shadow);
+			}
+		}
 		
-		List<T> shadow = getShadow(target);
-		shadow = patch.apply(shadow, entityType);
-		putShadow(shadow);
-
-		return patch.apply(DeepCloneUtils.deepClone(target), entityType);
+		if (shouldApplyPatch(patch, shadow)) {
+			shadow = new Shadow<List<T>>(patch.apply((List<T>) shadow.getResource(), entityType), shadow.getServerVersion(), shadow.getClientVersion() + 1);
+			Shadow<List<T>> backupShadow = new Shadow<List<T>>(shadow.getResource(), shadow.getServerVersion(), shadow.getClientVersion());
+			putListShadow(shadow);
+			putBackupListShadow(backupShadow);
+			return patch.apply(DeepCloneUtils.deepClone(target), entityType);
+		}
+		return target;
 	}
 	
 	/**
 	 * Compares a target object with its shadow, producing a patch describing the difference.
 	 * Upon completion, the shadow will be replaced with the target, per the Differential Synchronization algorithm.
 	 * @param target The target object to produce a difference patch for.
-	 * @return a {@link Patch} describing the differences between the target and its shadow.
+	 * @return a {@link VersionedPatch} describing the differences between the target and its shadow.
 	 */
-	public Patch diff(T target) {
-		T shadow = getShadow(target);
-		Patch diff = Diff.diff(shadow, target);
-		putShadow(diff.apply(shadow, entityType));
-		return diff;
+	public VersionedPatch diff(T target) {
+		Shadow<T> shadow = getShadow(target);
+		Patch diff = Diff.diff(shadow.getResource(), target);
+		VersionedPatch vDiff = new VersionedPatch(diff.getOperations(), shadow.getServerVersion(), shadow.getClientVersion());
+		T patched = diff.apply(shadow.getResource(), entityType);
+		shadow = new Shadow<T>(patched, shadow.getServerVersion() + 1, shadow.getClientVersion());
+		putShadow(shadow);
+		return vDiff;
 	}
 	
 	/**
 	 * Compares a target list with its shadow, producing a patch describing the difference.
 	 * Upon completion, the shadow will be replaced with the target, per the Differential Synchronization algorithm.
 	 * @param target The target list to produce a difference patch for.
-	 * @return a {@link Patch} describing the differences between the target and its shadow.
+	 * @return a {@link VersionedPatch} describing the differences between the target and its shadow.
 	 */
-	public Patch diff(List<T> target) {
-		List<T> shadow = getShadow(target);
-		Patch diff = Diff.diff(shadow, target);
-		putShadow(diff.apply(shadow, entityType));
-		return diff;
+	public VersionedPatch diff(List<T> target) {
+		Shadow<List<T>> shadow = getShadow(target);
+		Patch diff = Diff.diff(shadow.getResource(), target);
+		VersionedPatch vDiff = new VersionedPatch(diff.getOperations(), shadow.getServerVersion(), shadow.getClientVersion());
+		List<T> patched = diff.apply(shadow.getResource(), entityType);
+		shadow = new Shadow<List<T>>(patched, shadow.getServerVersion() + 1, shadow.getClientVersion());
+		putListShadow(shadow);
+		return vDiff;
 	}
 	
 	// private helper methods
 	
-	@SuppressWarnings("unchecked")
-	private T getShadow(T target) {
-		String shadowStoreKey = getShadowStoreKey(target);
-		T shadow = (T) shadowStore.getShadow(shadowStoreKey);
-		if (shadow == null) {
-			shadow = DeepCloneUtils.deepClone(target);
-		}
-		return shadow;
+	private boolean shouldApplyPatch(Patch patch, Shadow<?> shadow) {
+		if (!(patch instanceof VersionedPatch)) return true;
+		VersionedPatch versionedPatch = (VersionedPatch) patch;
+		return versionedPatch.getServerVersion() == shadow.getServerVersion() && versionedPatch.getClientVersion() == shadow.getClientVersion();
 	}
 	
-	private void putShadow(T shadow) {
-		String shadowStoreKey = getShadowStoreKey(shadow);
-		shadowStore.putShadow(shadowStoreKey, shadow);
-	}
-
 	@SuppressWarnings("unchecked")
-	private List<T> getShadow(List<T> target) {
+	private Shadow<T> getShadow(T target) {
 		String shadowStoreKey = getShadowStoreKey(target);
-		List<T> shadow = (List<T>) shadowStore.getShadow(shadowStoreKey);
+		Shadow<T> shadow = shadowStore.getShadow(shadowStoreKey);
 		if (shadow == null) {
-			shadow = DeepCloneUtils.deepClone(target);
+			shadow = new Shadow<T>(DeepCloneUtils.deepClone(target), 0, 0); // OKAY
 		}
 		return shadow;
 	}
 
-	private void putShadow(List<T> shadow) {
-		String shadowStoreKey = getShadowStoreKey(shadow);
+	@SuppressWarnings("unchecked")
+	private Shadow<T> getBackupShadow(T target) {
+		String shadowStoreKey = getShadowStoreKey(target) + "_backup";
+		Shadow<T> shadow = shadowStore.getShadow(shadowStoreKey);
+		if (shadow == null) {
+			shadow = new Shadow<T>(DeepCloneUtils.deepClone(target), 0, 0); // OKAY
+		}
+		return shadow;
+	}
+
+	private void putShadow(Shadow<T> shadow) {
+		String shadowStoreKey = getShadowStoreKey(shadow.getResource());
 		shadowStore.putShadow(shadowStoreKey, shadow);
 	}
 
-	
-	private String getShadowStoreKey(Object o) {
-		String resourceName = entityType.getSimpleName();
-		if (o instanceof List) {
-			return "shadow/list/" + resourceName;
-		} else {
-			return "shadow/" + resourceName;
+	private void putBackupShadow(Shadow<T> shadow) {
+		String shadowStoreKey = getShadowStoreKey(shadow.getResource()) + "_backup";
+		shadowStore.putShadow(shadowStoreKey, shadow);
+	}
+
+	private void putListShadow(Shadow<List<T>> shadow) {
+		String shadowStoreKey = getShadowStoreKey(shadow.getResource());
+		shadowStore.putShadow(shadowStoreKey, shadow);
+	}
+
+	private void putBackupListShadow(Shadow<List<T>> shadow) {
+		String shadowStoreKey = getShadowStoreKey(shadow.getResource()) + "_backup";
+		shadowStore.putShadow(shadowStoreKey, shadow);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Shadow<List<T>> getShadow(List<T> target) {
+		String shadowStoreKey = getShadowStoreKey(target);
+		Shadow<List<T>> shadow = shadowStore.getShadow(shadowStoreKey);
+		if (shadow == null) {
+			shadow = new Shadow<List<T>>(DeepCloneUtils.deepClone(target), 0, 0); // OKAY
 		}
+		return shadow;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Shadow<List<T>> getBackupShadow(List<T> target) {
+		String shadowStoreKey = getShadowStoreKey(target) + "_backup";
+		Shadow<List<T>> shadow = shadowStore.getShadow(shadowStoreKey);
+		if (shadow == null) {
+			shadow = new Shadow<List<T>>(DeepCloneUtils.deepClone(target), 0, 0); // OKAY
+		}
+		return shadow;
+	}
+
+	private String getShadowStoreKey(T t) {
+		return "shadow/" + entityType.getSimpleName();
+	}
+	
+	private String getShadowStoreKey(List<T> t) {
+		return "shadow/" + entityType.getSimpleName() + "List";
 	}
 
 }

@@ -39,7 +39,7 @@ public class MoveOperation extends FromOperation {
 	 * @param from The source path from which a value will be moved. (e.g., '/foo/bar/5')
 	 */
 	public MoveOperation(String path, String from) {
-		super("copy", path, from);
+		super("move", path, from);
 	}
 	
 	@Override

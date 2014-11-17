@@ -76,14 +76,13 @@ public class DiffSyncController {
 	
 	@ExceptionHandler(PatchException.class)
 	@ResponseStatus(value=HttpStatus.CONFLICT, reason="Unable to apply patch")
-	public void handlePatchException(PatchException e) {
-	}
+	public void handlePatchException(PatchException e) {}
 	
 	
 	@SuppressWarnings("unchecked")
 	private <T> Patch applyAndDiff(Patch patch, Object target, PersistenceCallback<T> persistenceCallback) {
 		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
-		T patched = sync.apply(patch, (T) target);
+		T patched = sync.apply((T) target, patch);
 		persistenceCallback.persistChange(patched);
 		return sync.diff(patched);
 	}
@@ -91,7 +90,7 @@ public class DiffSyncController {
 	private <T> Patch applyAndDiffAgainstList(Patch patch, List<T> target, PersistenceCallback<T> persistenceCallback) {
 		DiffSync<T> sync = new DiffSync<T>(shadowStore, persistenceCallback.getEntityType());
 		
-		List<T> patched = sync.apply(patch, target);
+		List<T> patched = sync.apply(target, patch);
 
 		List<T> itemsToSave = new ArrayList<T>(patched);
 		itemsToSave.removeAll(target);
