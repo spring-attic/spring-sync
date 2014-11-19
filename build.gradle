@@ -1,6 +1,6 @@
 buildscript {
 	repositories {
-		maven { url "http://repo.spring.io/plugins-release" }
+		maven { url "https://repo.spring.io/plugins-release" }
 	}
 	dependencies {
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
@@ -98,7 +98,7 @@ configure(allprojects) {
 	}
 
 	repositories {
-		maven { url "http://repo.spring.io/libs-snapshot" }
+		maven { url "https://repo.spring.io/libs-snapshot" }
 	}
 
 	dependencies {
@@ -229,6 +229,8 @@ project('spring-sync-core') {
 		compile("commons-lang:commons-lang:${commonsLangVersion}")
 		compile("com.googlecode.java-diff-utils:diffutils:${diffUtilsVersion}")
 		compile("org.slf4j:slf4j-api:${slf4jVersion}")
+		optional("org.springframework.data:spring-data-redis:${springDataRedisVersion}")
+		optional("org.springframework.data:spring-data-gemfire:${springDataGemfireVersion}")
 		optional("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
 		testCompile("com.jayway.jsonpath:json-path:${jsonPathVersion}")
 		testCompile("com.jayway.jsonpath:json-path-assert:${jsonPathVersion}")
@@ -248,8 +250,12 @@ project('spring-sync-config') {
 
 project('spring-sync-core-android') {
 	description = "Spring Differential Synchronization and JSON Patch for Android"
+
 	// creates a separate artifact for Android which builds against different dependencies
-	sourceSets.main.java.srcDirs(project(":spring-sync-core").sourceSets.main.java)
+	FileTree tree = project(":spring-sync-core").sourceSets.main.java.asFileTree
+	tree.exclude('org/springframework/sync/diffsync/data/**')
+	sourceSets.main.java.srcDirs(tree)
+
 	dependencies {
 		compile("org.springframework.android:spring-android-core:${springAndroidVersion}")
 		compile("org.springframework:spring-expression:3.2.11.RELEASE") {
@@ -268,8 +274,6 @@ project('spring-sync-web') {
 		compile(project(":spring-sync-core"))
 		compile("org.springframework:spring-webmvc:${springVersion}")
 		optional("javax.servlet:javax.servlet-api:${servletApiVersion}")
-		optional("org.springframework.data:spring-data-redis:${springDataRedisVersion}")
-		optional("org.springframework.data:spring-data-gemfire:${springDataGemfireVersion}")
 		optional("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
 		testCompile("org.hibernate:hibernate-entitymanager:4.3.5.Final")
 		testCompile("com.h2database:h2:1.4.180")
