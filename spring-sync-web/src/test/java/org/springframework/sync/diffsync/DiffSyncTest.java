@@ -41,6 +41,7 @@ import org.springframework.sync.PatchOperation;
 import org.springframework.sync.Person;
 import org.springframework.sync.Todo;
 import org.springframework.sync.TodoRepository;
+import org.springframework.sync.diffsync.shadowstore.MapBasedShadowStore;
 import org.springframework.sync.json.JsonPatchPatchConverter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;

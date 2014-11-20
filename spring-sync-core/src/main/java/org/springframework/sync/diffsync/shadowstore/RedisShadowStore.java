@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sync.diffsync.data;
+package org.springframework.sync.diffsync.shadowstore;
 
 import java.util.ArrayList;
 import java.util.List;

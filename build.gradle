@@ -252,9 +252,16 @@ project('spring-sync-core-android') {
 	description = "Spring Differential Synchronization and JSON Patch for Android"
 
 	// creates a separate artifact for Android which builds against different dependencies
-	FileTree tree = project(":spring-sync-core").sourceSets.main.java.asFileTree
-	tree.exclude('org/springframework/sync/diffsync/data/**')
-	sourceSets.main.java.srcDirs(tree)
+
+	sourceSets {
+		main {
+			java {
+				srcDir '../spring-sync-core/src/main/java'
+				exclude 'org/springframework/sync/diffsync/shadowstore/Redis**'
+				exclude 'org/springframework/sync/diffsync/shadowstore/Gem**'
+			}
+		}
+	}
 
 	dependencies {
 		compile("org.springframework.android:spring-android-core:${springAndroidVersion}")

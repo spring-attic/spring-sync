@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sync.diffsync;
+package org.springframework.sync.diffsync.shadowstore;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.sync.diffsync.AbstractShadowStore;
+import org.springframework.sync.diffsync.Shadow;
+import org.springframework.sync.diffsync.ShadowStore;
 
 /**
  * Implementation of {@link ShadowStore} that keeps shadows in an in-memory map.

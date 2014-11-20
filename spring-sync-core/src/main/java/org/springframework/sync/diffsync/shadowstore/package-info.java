@@ -1,4 +1,4 @@
 /**
  * Web support for Differential Synchronization.
  */
-package org.springframework.sync.diffsync.data;
+package org.springframework.sync.diffsync.shadowstore;

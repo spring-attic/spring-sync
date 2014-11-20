@@ -16,10 +16,10 @@ import org.springframework.web.patch.diffsync.ShadowStore;
  */
 package org.springframework.sync.diffsync.config;
 
-import org.springframework.sync.diffsync.MapBasedShadowStore;
 import org.springframework.sync.diffsync.PersistenceCallback;
 import org.springframework.sync.diffsync.PersistenceCallbackRegistry;
 import org.springframework.sync.diffsync.ShadowStore;
+import org.springframework.sync.diffsync.shadowstore.MapBasedShadowStore;
 
 /**
  * Configurer for DiffSync.

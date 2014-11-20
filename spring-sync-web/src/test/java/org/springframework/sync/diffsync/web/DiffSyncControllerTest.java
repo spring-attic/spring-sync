@@ -15,10 +15,11 @@
  */
 package org.springframework.sync.diffsync.web;
 
-import static org.junit.Assert.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,9 +35,9 @@ import org.springframework.http.MediaType;
 import org.springframework.sync.Todo;
 import org.springframework.sync.TodoRepository;
 import org.springframework.sync.diffsync.EmbeddedDataSourceConfig;
-import org.springframework.sync.diffsync.MapBasedShadowStore;
 import org.springframework.sync.diffsync.PersistenceCallbackRegistry;
 import org.springframework.sync.diffsync.ShadowStore;
+import org.springframework.sync.diffsync.shadowstore.MapBasedShadowStore;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
