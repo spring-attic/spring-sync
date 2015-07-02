@@ -256,7 +256,7 @@ project('spring-sync-core-android') {
 	sourceSets {
 		main {
 			java {
-				srcDir '../spring-sync-core/src/main/java'
+				srcDir './spring-sync-core/src/main/java'
 				exclude 'org/springframework/sync/diffsync/shadowstore/Redis**'
 				exclude 'org/springframework/sync/diffsync/shadowstore/Gem**'
 			}
