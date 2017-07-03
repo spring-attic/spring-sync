@@ -66,17 +66,17 @@ public class JsonPatchPatchConverter implements PatchConverter<JsonNode> {
 			Object value = valueFromJsonNode(path, valueNode);			
 			String from = opNode.has("from") ? opNode.get("from").textValue() : null;
 
-			if (opType.equals("test")) {
+			if ("test".equals(opType)) {
 				ops.add(new TestOperation(path, value));
-			} else if (opType.equals("replace")) {
+			} else if ("replace".equals(opType)) {
 				ops.add(new ReplaceOperation(path, value));
-			} else if (opType.equals("remove")) {
+			} else if ("remove".equals(opType)) {
 				ops.add(new RemoveOperation(path));
-			} else if (opType.equals("add")) {
+			} else if ("add".equals(opType)) {
 				ops.add(new AddOperation(path, value));
-			} else if (opType.equals("copy")) {
+			} else if ("copy".equals(opType)) {
 				ops.add(new CopyOperation(path, from));
-			} else if (opType.equals("move")) {
+			} else if ("move".equals(opType)) {
 				ops.add(new MoveOperation(path, from));
 			} else {
 				throw new PatchException("Unrecognized operation type: " + opType);
